@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:533895704071:android:a9c692096b286479da04a2",
+        "mobilesdk_app_id": "1:533895704071:android:f86154562390b172da04a2",
         "android_client_info": {
-          "package_name": "com.example.igraslagalica"
+          "package_name": "com.example.igricaslagalica"
         }
       },
       "oauth_client": [
