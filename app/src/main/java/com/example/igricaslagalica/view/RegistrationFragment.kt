@@ -5,8 +5,11 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.navigation.fragment.findNavController
 import com.example.igricaslagalica.R
+import com.example.igricaslagalica.controller.auth.AuthListener
+import com.example.igricaslagalica.controller.auth.FirebaseAuthController
 import com.example.igricaslagalica.databinding.FragmentRegistrationBinding
 
 /**
@@ -34,7 +37,7 @@ class RegistrationFragment : Fragment() {
 
         binding.buttonRegister.setOnClickListener {
             registerUser()
-            findNavController().navigate(R.id.action_registrationFragment_to_loginFragment)
+           // findNavController().navigate(R.id.action_registrationFragment_to_loginFragment)
         }
     }
 
@@ -44,12 +47,25 @@ class RegistrationFragment : Fragment() {
         val password = binding.editTextPassword.text.toString()
         val confirmPassword = binding.editTextConfirmPassword.text.toString()
 
-        //TODO napraviti logiku za firebase
-
-    }
+        if (password == confirmPassword) {
+            //Add the firebase logic
+            FirebaseAuthController().signUp(email, password, username, object : AuthListener {
+                override fun onAuthSuccess() {
+                    findNavController().navigate(R.id.action_registrationFragment_to_loginFragment)
+                }
+                override fun onAuthFailed(message: String) {
+                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                }
+            })
+        } else {
+            Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
+        }
+}
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
+
+
 }
