@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
+import com.example.igricaslagalica.R
 import com.example.igricaslagalica.databinding.FragmentRegistrationBinding
 
 /**
@@ -33,7 +34,7 @@ class RegistrationFragment : Fragment() {
 
         binding.buttonRegister.setOnClickListener {
             registerUser()
-            //findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
+            findNavController().navigate(R.id.action_registrationFragment_to_loginFragment)
         }
     }
 
