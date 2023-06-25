@@ -1,4 +1,4 @@
-package com.example.igricaslagalica
+package com.example.igricaslagalica.view
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
