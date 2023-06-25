@@ -11,6 +11,7 @@ import com.example.igricaslagalica.controller.auth.FirebaseAuthController
 import androidx.navigation.fragment.findNavController
 import com.example.igricaslagalica.R
 import com.example.igricaslagalica.databinding.FragmentLoginBinding
+import com.google.firebase.firestore.FirebaseFirestore
 
 /**
  * A simple [Fragment] subclass as the second destination in the navigation.
@@ -22,13 +23,15 @@ class LoginFragment : Fragment(), AuthListener {
 
     // Dodajte instancu FirebaseAuthController-a
     private lateinit var authController: FirebaseAuthController
-
+    init {
+        val db = FirebaseFirestore.getInstance()
+        authController = FirebaseAuthController(db)
+    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentLoginBinding.inflate(inflater, container, false)
-        authController = FirebaseAuthController()
         return binding.root
 
     }

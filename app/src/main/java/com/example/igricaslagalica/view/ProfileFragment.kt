@@ -17,20 +17,24 @@ import com.example.igricaslagalica.R
 import com.example.igricaslagalica.controller.auth.FirebaseAuthController
 import com.example.igricaslagalica.databinding.FragmentProfileBinding
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 
 
 class ProfileFragment : Fragment() {
 
     private var _binding: FragmentProfileBinding? = null
-    private val authController = FirebaseAuthController()
+    private val authController: FirebaseAuthController
     private lateinit var content: ActivityResultLauncher<String>
 
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
 
-
+    init {
+        val db = FirebaseFirestore.getInstance()
+        authController = FirebaseAuthController(db)
+    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -95,6 +99,16 @@ class ProfileFragment : Fragment() {
         binding.buttonLogout.setOnClickListener{
             authController.signOut()
             findNavController().navigate(R.id.action_profileFragment_to_loginFragment)
+        }
+
+
+        //...
+
+        if (user != null) {
+            authController.loadPlayer(user.uid) { player ->
+                // Show the player's tokens somewhere
+                binding.textViewTokeni.text = player.tokens.toString()
+            }
         }
     }
 
