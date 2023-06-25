@@ -7,6 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import com.example.igricaslagalica.controller.auth.AuthListener
 import com.example.igricaslagalica.controller.auth.FirebaseAuthController
+import androidx.navigation.fragment.findNavController
+import com.example.igricaslagalica.R
 import com.example.igricaslagalica.databinding.FragmentLoginBinding
 
 /**
@@ -35,6 +37,11 @@ class LoginFragment : Fragment(), AuthListener {
 
         binding.buttonLogin.setOnClickListener {
             loginUser()
+            findNavController().navigate(R.id.action_loginFragment_to_profileFragment)
+
+        }
+        binding.buttonRegister.setOnClickListener{
+            findNavController().navigate(R.id.action_loginFragment_to_registrationFragment)
         }
     }
 
