@@ -11,6 +11,7 @@ import com.example.igricaslagalica.R
 import com.example.igricaslagalica.controller.auth.AuthListener
 import com.example.igricaslagalica.controller.auth.FirebaseAuthController
 import com.example.igricaslagalica.databinding.FragmentRegistrationBinding
+import com.google.firebase.firestore.FirebaseFirestore
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -18,11 +19,15 @@ import com.example.igricaslagalica.databinding.FragmentRegistrationBinding
 class RegistrationFragment : Fragment() {
 
     private var _binding: FragmentRegistrationBinding? = null
+    private val authController: FirebaseAuthController
 
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
-
+    init {
+        val db = FirebaseFirestore.getInstance()
+        authController = FirebaseAuthController(db)
+    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -46,10 +51,13 @@ class RegistrationFragment : Fragment() {
         val username = binding.editTextUsername.text.toString()
         val password = binding.editTextPassword.text.toString()
         val confirmPassword = binding.editTextConfirmPassword.text.toString()
-
+        if(email.isNullOrEmpty() || username.isNullOrEmpty() || password.isNullOrEmpty() || confirmPassword.isNullOrEmpty()){
+            Toast.makeText(activity, "All inputs must be entered", Toast.LENGTH_SHORT).show()
+            return
+        }
         if (password == confirmPassword) {
             //Add the firebase logic
-            FirebaseAuthController().signUp(email, password, username, object : AuthListener {
+            authController.signUp(email, password, username, object : AuthListener {
                 override fun onAuthSuccess() {
                     findNavController().navigate(R.id.action_registrationFragment_to_loginFragment)
                 }
