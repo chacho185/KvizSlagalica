@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import com.example.igricaslagalica.controller.auth.AuthListener
 import com.example.igricaslagalica.controller.auth.FirebaseAuthController
 import androidx.navigation.fragment.findNavController
@@ -37,8 +38,6 @@ class LoginFragment : Fragment(), AuthListener {
 
         binding.buttonLogin.setOnClickListener {
             loginUser()
-            findNavController().navigate(R.id.action_loginFragment_to_profileFragment)
-
         }
         binding.buttonRegister.setOnClickListener{
             findNavController().navigate(R.id.action_loginFragment_to_registrationFragment)
@@ -53,10 +52,13 @@ class LoginFragment : Fragment(), AuthListener {
     }
     override fun onAuthSuccess() {
         // Handle login success (navigate to another fragment, show a success message, etc.)
+        findNavController().navigate(R.id.action_loginFragment_to_profileFragment)
+
     }
 
     override fun onAuthFailed(message: String) {
         // Handle login failure (show an error message, etc.)
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
     override fun onDestroyView() {
         super.onDestroyView()
