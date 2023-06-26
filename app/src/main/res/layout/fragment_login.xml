@@ -28,7 +28,7 @@
             android:id="@+id/editTextEmail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="E-mail" />
+            android:hint="E-mail/Username" />
 
         <EditText
             android:id="@+id/editTextPassword"
@@ -59,6 +59,11 @@
             android:text="Register" />
 </LinearLayout>
 
+        <Button
+            android:id="@+id/buttonPlay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Play" />
     </LinearLayout>
     </androidx.cardview.widget.CardView>
 </androidx.constraintlayout.widget.ConstraintLayout>

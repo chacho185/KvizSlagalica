@@ -45,12 +45,19 @@ class LoginFragment : Fragment(), AuthListener {
         binding.buttonRegister.setOnClickListener{
             findNavController().navigate(R.id.action_loginFragment_to_registrationFragment)
         }
+        binding.buttonPlay.setOnClickListener {
+
+        }
     }
 
     private fun loginUser() {
         val email = binding.editTextEmail.text.toString()
         val password = binding.editTextPassword.text.toString()
-        authController.signIn(email, password, this)
+        // TODO Prosiriti funkciju singIn da moze primiti i username a ne samo email
+        if(email.isNotEmpty() && password.isNotEmpty())
+            authController.signIn(email, password, this)
+        else
+            Toast.makeText(context, "Morate unijeti email/username i password!", Toast.LENGTH_SHORT).show()
 
     }
     override fun onAuthSuccess() {
