@@ -45,14 +45,17 @@ class LoginFragment : Fragment(), AuthListener {
         binding.buttonRegister.setOnClickListener{
             findNavController().navigate(R.id.action_loginFragment_to_registrationFragment)
         }
-        binding.buttonPlay.setOnClickListener {
 
+        binding.buttonPlay.setOnClickListener {
+//            findNavController().navigate(R.id.)
         }
     }
 
     private fun loginUser() {
         val email = binding.editTextEmail.text.toString()
         val password = binding.editTextPassword.text.toString()
+
+
         // TODO Prosiriti funkciju singIn da moze primiti i username a ne samo email
         if(email.isNotEmpty() && password.isNotEmpty())
             authController.signIn(email, password, this)

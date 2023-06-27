@@ -1,16 +1,17 @@
 package com.example.igricaslagalica.controller.auth
 
+import android.content.ContentValues.TAG
 import android.util.Log
 import com.example.igricaslagalica.model.Player
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.firestore.FirebaseFirestore
+import java.time.Duration
 
 class FirebaseAuthController(private val db: FirebaseFirestore) {
 
     private val mAuth = FirebaseAuth.getInstance()
-
-
 
     fun signUp(email: String, password: String, username: String, listener: AuthListener) {
         mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { task ->
@@ -60,22 +61,38 @@ class FirebaseAuthController(private val db: FirebaseFirestore) {
 
     // ostale metode checkIfUserIsSignedIn, etc.
 
-    fun loadPlayer(uid: String, onComplete: (Player) -> Unit) {
-        db.collection("players").document(uid).get()
-            .addOnSuccessListener { document ->
-                if (document != null) {
-                    val player = document.toObject(Player::class.java)
-                    if (player != null) {
-                        onComplete(player)
-                    }
+    fun loadPlayer(id: String, onComplete: (Player) -> Unit) {
+        db.collection("players").document(id).get().addOnSuccessListener { documentSnapshot ->
+            val player = documentSnapshot.toObject(Player::class.java)
+            player?.let { p ->
+                val currentTime = Timestamp.now()
+                val lastTokenTime = p.lastTokenTime
+                val diff = Duration.between(lastTokenTime.toDate().toInstant(), currentTime.toDate().toInstant())
+
+                val diffInDays = diff.toHours().div(24)
+                if (diffInDays >= 1) {
+                    // Add 5 tokens for each day
+                    p.tokens += 5 * diffInDays.toInt()
+
+                    // Update the lastTokenTime to the current time
+                    p.lastTokenTime = currentTime
+
+                    // Update the player's tokens in the database
+                    db.collection("players").document(id).update("tokens", p.tokens, "lastTokenTime", p.lastTokenTime)
+                        .addOnSuccessListener {
+                            onComplete(p)
+                        }
+                        .addOnFailureListener { e ->
+                            Log.w(TAG, "Error updating document", e)
+                        }
                 } else {
-                    Log.d("FirebaseAuthController", "No such document")
+                    onComplete(p)
                 }
             }
-            .addOnFailureListener { exception ->
-                Log.d("FirebaseAuthController", "get failed with ", exception)
-            }
+        }
     }
+
+
 
 
 }

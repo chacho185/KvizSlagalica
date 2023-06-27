@@ -69,6 +69,13 @@
                 android:textAppearance="?android:textAppearanceMedium"
                 android:text="Tokeni igrača" />
 
+            <!-- Button za igru -->
+            <Button
+                android:id="@+id/buttonPlayOnline"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Play Online" />
+
             <!-- Opcija za logout -->
             <Button
                 android:id="@+id/buttonLogout"
