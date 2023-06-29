@@ -1,6 +1,8 @@
 package com.example.igricaslagalica.controller
 
+import android.content.ContentValues.TAG
 import android.util.Log
+import com.example.igricaslagalica.model.Connection
 import com.example.igricaslagalica.model.Game
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -48,21 +50,23 @@ class FirebaseGameController() {
             }
     }
 
-    fun listenForGames(playerId: String, onGameFound: (Game) -> Unit) {
-        db.collection("games")
-            .whereEqualTo("status", "waiting")
-            .whereNotEqualTo("player1", playerId)
-            .addSnapshotListener { value, _ ->
-                for (document in value!!) {
-                    val game = document.toObject(Game::class.java)
-                    if (game.status == "waiting") {
-                        // pronađena partija koja čeka igrača, ažurirajte dokument sa novim statusom i drugim igračem
-                        document.reference.update("status", "playing", "player2", playerId)
-                        onGameFound(game)
-                        break
-                    }
-                }
-            }
-    }
+
+//    fun listenForGames(playerId: String, onGameFound: (Game) -> Unit) {
+//        db.collection("games")
+//            .whereEqualTo("status", "waiting")
+//            .whereNotEqualTo("player1", playerId)
+//            .addSnapshotListener { value, _ ->
+//                for (document in value!!) {
+//                    val game = document.toObject(Game::class.java)
+//                    if (game.status == "waiting") {
+//                        // pronađena partija koja čeka igrača, ažurirajte dokument sa novim statusom i drugim igračem
+//                        document.reference.update("status", "playing", "player2", playerId)
+//                        onGameFound(game)
+//                        break
+//                    }
+//                }
+//            }
+//    }
+
 
 }
