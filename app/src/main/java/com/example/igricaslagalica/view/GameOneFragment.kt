@@ -1,19 +1,23 @@
 package com.example.igricaslagalica.view
 
+import android.content.Context
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.igricaslagalica.R
 import com.example.igricaslagalica.controller.SpojnicaGameController
+import com.example.igricaslagalica.model.Game
 import com.example.igricaslagalica.view.adapter.AnswersAdapter
 import com.example.igricaslagalica.view.adapter.QuestionsAdapter
+import com.google.firebase.firestore.FirebaseFirestore
 
 class GameOneFragment : Fragment() {
 
@@ -36,7 +40,6 @@ class GameOneFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         // Initialize the game controller
         gameController = SpojnicaGameController()
     }
@@ -59,7 +62,9 @@ class GameOneFragment : Fragment() {
         player1Score = view.findViewById(R.id.player1Score)
         player2Score = view.findViewById(R.id.player2Score)
 
-        timerTextView = view.findViewById(R.id.gameTimer) // assuming you have a TextView to show the remaining time
+        timerTextView = view.findViewById(R.id.gameTimer)
+        switchPlayerButton = view.findViewById(R.id.submit)
+
         // Initialize timer
         timer = object : CountDownTimer(timerDuration, 1000) {
             override fun onTick(millisUntilFinished: Long) {
@@ -77,27 +82,72 @@ class GameOneFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        var selectedQuestion: String? = null
+        questionsAdapter = QuestionsAdapter(emptyList(), this::onQuestionSelected)
+        answersAdapter = AnswersAdapter(emptyList(), this::onAnswerSelected)
+        questionsRecyclerView.adapter = questionsAdapter
+        answersRecyclerView.adapter = answersAdapter
+
+        val gameId = arguments?.getString("gameId")
+        val loadingIndicator: ProgressBar = view.findViewById(R.id.loadingIndicator)
+        val sharedPreferences = activity?.getSharedPreferences("MyApp", Context.MODE_PRIVATE)
+        val currentPlayerId = sharedPreferences?.getString("currentPlayerId", null)
 
 
-        // Load the game data
-        gameController.loadGameData { questions, answers ->
-            // Initialize the adapters and assign them to the lateinit vars
-            questionsAdapter = QuestionsAdapter(questions, this::onQuestionSelected)
-            answersAdapter = AnswersAdapter(answers, this::onAnswerSelected)
-            // Assign the adapters to the RecyclerViews
-            questionsRecyclerView.adapter = questionsAdapter
-            answersRecyclerView.adapter = answersAdapter
-            timer.start()
+        if (gameId != null) {
+            if (currentPlayerId != null) {
+                gameController.createGame(currentPlayerId) { questions ->
+                    questionsAdapter.updateData(questions)
+                    answersAdapter.updateData(questions)
+                }
+
+            }
+
+            loadingIndicator.visibility = View.VISIBLE
+
+            gameController.watchGame(gameId) { game ->
+                loadingIndicator.visibility = View.GONE
+                if (game != null) {
+                    questionsAdapter.updateData(game.questionInfo)
+                   // questionsAdapter.notifyDataSetChanged()
+                    answersAdapter.updateData(game.questionInfo)
+                    timer.start()
+                } else {
+                    // Obradite situaciju kad je igra završena ili ne postoji
+                }
+            }
         }
-        switchPlayerButton = view.findViewById(R.id.submit)
+
         switchPlayerButton.setOnClickListener {
-            switchPlayer()
-            updateScores()
-            timer.start()
+            if (gameId != null && currentPlayerId != null) {
+                gameController.getGame(gameId) { game ->
+                    if (game != null) {
+                        // Switch player
+                        switchPlayer()
+
+                        // Update scores
+                        updateScores()
+
+//                        val connection = game.questionInfo[selectedQuestionIndex!!] // pretpostavljam da imate selectedQuestionIndex
+//                        gameController.updateGame(game, currentPlayerId, connection) { success ->
+//                            if (success) {
+//                                // Restart timer
+//                                timer.start()
+//                            } else {
+//                                // Handle error
+//                            }
+//                        }
+                    } else {
+                        // Handle error
+                    }
+                }
+            }
         }
+
+
 
     }
+
+
 
     private fun switchPlayer() {
         // stop the timer if it's still counting down
@@ -111,6 +161,8 @@ class GameOneFragment : Fragment() {
         // TODO: check if game is over, if not, restart the timer
         timer.start()
     }
+
+
     private fun updateScores() {
         val scores = gameController.getScores()
         player1Score.text = "Player 1: ${scores[1]}"
@@ -119,24 +171,30 @@ class GameOneFragment : Fragment() {
 
     fun onQuestionSelected(index: Int) {
         selectedQuestionIndex = index
+        switchPlayerButton.isEnabled = selectedQuestionIndex != null && selectedAnswerIndex != null
         checkAnswer()
     }
 
     fun onAnswerSelected(index: Int) {
         selectedAnswerIndex = index
+        switchPlayerButton.isEnabled = selectedQuestionIndex != null && selectedAnswerIndex != null
         checkAnswer()
     }
-
     fun checkAnswer() {
         if (selectedQuestionIndex != null && selectedAnswerIndex != null) {
-            gameController.makeConnection(selectedQuestionIndex!!, selectedAnswerIndex!!)
-            questionsAdapter.notifyItemChanged(selectedQuestionIndex!!)
-            answersAdapter.notifyItemChanged(selectedAnswerIndex!!)
-            selectedQuestionIndex = null
-            selectedAnswerIndex = null
+            val correct = gameController.processAnswer(selectedQuestionIndex!!, selectedAnswerIndex!!)
+            if (correct) {
+                // Mark the questions and answers as selected
+                questionsAdapter.notifyItemChanged(selectedQuestionIndex!!)
+                answersAdapter.notifyItemChanged(selectedAnswerIndex!!)
 
+            }
+            // Reset selected indexes
+            //  selectedQuestionIndex = null
+            //    selectedAnswerIndex = null
         }
     }
+
     companion object {
         @JvmStatic
         fun newInstance() = GameOneFragment()
