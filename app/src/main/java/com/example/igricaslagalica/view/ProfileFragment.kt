@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.os.bundleOf
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.example.igricaslagalica.R
@@ -125,6 +126,9 @@ class ProfileFragment : Fragment() {
     }
     private fun onPlayOnlineButtonClicked(playerId: String) {
         Log.d("onPlayOnline", "Function called with playerId: $playerId")
+        val sharedPreferences = activity?.getSharedPreferences("MyApp", Context.MODE_PRIVATE)
+        sharedPreferences?.edit()?.putString("currentPlayerId", playerId)?.apply()
+
         gameController.getWaitingGame(playerId) { game ->
             Log.d("getWaitingGame", "Callback is being called with game: $game")
             if (game != null) {
@@ -134,8 +138,9 @@ class ProfileFragment : Fragment() {
                         if (success) {
                             Log.d("joinGame", "Successfully joined the game")
                             Toast.makeText(context, "Successfully joined the game", Toast.LENGTH_LONG).show()
+                            val bundle = bundleOf("gameId" to it)
 
-                            findNavController().navigate(R.id.action_profileFragment_to_playOnline)
+                            findNavController().navigate(R.id.action_profileFragment_to_playOnline, bundle)
                         } else {
                             Log.d("joinGame", "Failed to join the game")
                             Toast.makeText(context, "Failed to join the game", Toast.LENGTH_LONG).show()
@@ -148,9 +153,10 @@ class ProfileFragment : Fragment() {
                 gameController.startGame(playerId) { success, gameId ->
                     if (success) {
                         Log.d("startGame", "Successfully started a new game with gameId: $gameId")
-                    //    findNavController().navigate(R.id.action_profileFragment_to_playOnline)
-                        Toast.makeText(context, "Successfully started a new game with gameId: $gameId", Toast.LENGTH_LONG).show()
-                        findNavController().navigate(R.id.action_profileFragment_to_playOnline)
+                        // Create the game with the list of questions
+//                        gameController.createGame(gameId)
+                        val bundle = bundleOf("gameId" to gameId)
+                        findNavController().navigate(R.id.action_profileFragment_to_playOnline, bundle)
 
                     } else {
                         Log.d("startGame", "Failed to start a new game")

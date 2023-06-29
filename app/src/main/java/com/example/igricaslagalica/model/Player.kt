@@ -7,6 +7,7 @@ data class Player(
     val email: String? = null,
     val username: String? = null,
     var tokens: Int = 0,
-    var lastTokenTime: Timestamp = Timestamp.now()
+    var lastTokenTime: Timestamp = Timestamp.now(),
+    var score: Int = 0
 
 )

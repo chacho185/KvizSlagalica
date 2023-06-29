@@ -6,10 +6,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.activityViewModels
 import com.example.igricaslagalica.controller.auth.AuthListener
 import com.example.igricaslagalica.controller.auth.FirebaseAuthController
 import androidx.navigation.fragment.findNavController
+import com.example.igricaslagalica.MainActivity
 import com.example.igricaslagalica.R
+import com.example.igricaslagalica.SharedViewModel
 import com.example.igricaslagalica.databinding.FragmentLoginBinding
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -20,6 +23,8 @@ class LoginFragment : Fragment(), AuthListener {
 
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
+    private val sharedViewModel: SharedViewModel by activityViewModels()
+
 
     // Dodajte instancu FirebaseAuthController-a
     private lateinit var authController: FirebaseAuthController
@@ -47,7 +52,7 @@ class LoginFragment : Fragment(), AuthListener {
         }
 
         binding.buttonPlay.setOnClickListener {
-//            findNavController().navigate(R.id.)
+           findNavController().navigate(R.id.action_loginFragment_to_koZnaZnaGame)
         }
     }
 
