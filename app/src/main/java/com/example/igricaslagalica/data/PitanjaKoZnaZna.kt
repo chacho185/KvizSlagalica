@@ -5,7 +5,8 @@ data class PitanjaKoZnaZna(
     val questionText: String,
     val options: List<String>,
     val correctAnswer: Int,
-    var userAnswer: Int? = -1
+    var userAnswer: Int? = -1,
+    var remainingTime: Long = -1
 )
 
 val pitanjaKoZnaZnas = listOf(

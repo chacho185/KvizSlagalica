@@ -1,6 +1,5 @@
 package com.example.igricaslagalica.view
 
-import android.content.Context
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.view.LayoutInflater
@@ -10,8 +9,9 @@ import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.*
+import androidx.fragment.app.activityViewModels
 import com.example.igricaslagalica.R
+import com.example.igricaslagalica.SharedViewModel
 import com.example.igricaslagalica.data.PitanjaKoZnaZna
 import com.example.igricaslagalica.data.dajPitanja
 import com.example.igricaslagalica.databinding.FragmentKoZnaZnaGameBinding
@@ -19,13 +19,24 @@ import com.example.igricaslagalica.databinding.FragmentKoZnaZnaGameBinding
 class KoZnaZnaGame : Fragment() {
     private var _binding: FragmentKoZnaZnaGameBinding? = null
     private val binding get() = _binding!!
+    private val sharedViewModel: SharedViewModel by activityViewModels()
 
-    private lateinit var questionAdapter: QuestionAdapter
+
+
+    private lateinit var textViewScore: TextView
+    private lateinit var questionTextView: TextView
+    private lateinit var optionsRadioGroup: RadioGroup
+    private lateinit var option1RadioButton: RadioButton
+    private lateinit var option2RadioButton: RadioButton
+    private lateinit var option3RadioButton: RadioButton
+    private lateinit var option4RadioButton: RadioButton
+
     private lateinit var questionList: List<PitanjaKoZnaZna>
-    private var currentQuestionIndex = 0
-    private var score = 0
+    private var currentQuestionIndex: Int = 0
     private lateinit var timer: CountDownTimer
-    var currentVisibleItemPosition = 0
+    private var totalScore: Int = 0
+    private var remainingTime: Long = 0
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -38,68 +49,92 @@ class KoZnaZnaGame : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // Inicijalizacija pitanja
+
+        questionTextView = binding.pitanjeView.findViewById(R.id.questionTextView)
+        optionsRadioGroup =
+            binding.pitanjeView.findViewById(R.id.optionsRadioGroup)
+        option1RadioButton = binding.pitanjeView.findViewById(R.id.option1RadioButton)
+        option2RadioButton = binding.pitanjeView.findViewById(R.id.option2RadioButton)
+        option3RadioButton = binding.pitanjeView.findViewById(R.id.option3RadioButton)
+        option4RadioButton = binding.pitanjeView.findViewById(R.id.option4RadioButton)
+        textViewScore = binding.textViewScore
         questionList = generateQuestions()
 
 
-        // Inicijalizacija RecyclerView-a
-        questionAdapter = QuestionAdapter(questionList)
-        val layoutManager = NonScrollableLinearLayoutManager(
-            requireContext(),
-            LinearLayoutManager.HORIZONTAL,
-            false
-        )
-
-        binding.pitanjaRecyclerView.layoutManager = layoutManager
-        binding.pitanjaRecyclerView.adapter = questionAdapter
-        val snapHelper: SnapHelper = LinearSnapHelper()
-        snapHelper.attachToRecyclerView(binding.pitanjaRecyclerView)
-        // Pokretanje igre
-        startGame()
         binding.nextButton.setOnClickListener {
-            if(currentVisibleItemPosition == 3)
+            timer.cancel()
+            checkAnswer()
+            showNextQuestion()
+        }
+        binding.finishButton.setOnClickListener {
+            sharedViewModel.setQuestionList(questionList)
+
+            val q = sharedViewModel.getQuestionList()
+            q.size
+            // TODO: sljedeca igra
+        }
+        showNextQuestion()
+
+    }
+
+    private fun showNextQuestion() {
+        if (currentQuestionIndex < 5) {
+            if (currentQuestionIndex == 4)
                 binding.nextButton.text = "Done"
-            if(currentVisibleItemPosition == 4)
-            {
-                binding.pitanjaRecyclerView.visibility = View.GONE
-                binding.rezultatiView.visibility = View.VISIBLE
-                binding.nextButton.text = "Finish"
-            }
-            if(currentVisibleItemPosition == 5)
-            {
-                //TODO prebaciti se na sljedecu igricu
-            }
-            currentVisibleItemPosition++
-            binding.pitanjaRecyclerView.smoothScrollToPosition(currentVisibleItemPosition)
+
+            resetRadioButtons()
+
+            val question = questionList[currentQuestionIndex]
+            questionTextView.text = question.questionText
+            option1RadioButton.text = question.options[0]
+            option2RadioButton.text = question.options[1]
+            option3RadioButton.text = question.options[2]
+            option4RadioButton.text = question.options[3]
+
+            currentQuestionIndex++
+            startTimer()
+        } else {
+            binding.pitanjeView.visibility = View.GONE
+            binding.textViewScore.visibility = View.VISIBLE
+            binding.nextButton.visibility = View.GONE
+            binding.finishButton.visibility = View.VISIBLE
+            binding.timerTextView.visibility = View.GONE
+            updateScore()
+            endGame()
         }
     }
 
-    inner class NonScrollableLinearLayoutManager(
-        context: Context,
-        orientation: Int,
-        reverseLayout: Boolean
-    ) :
-        LinearLayoutManager(context, orientation, reverseLayout) {
-        override fun scrollHorizontallyBy(
-            dx: Int,
-            recycler: RecyclerView.Recycler?,
-            state: RecyclerView.State?
-        ): Int {
-            // Onemogućavanje klizanja u vodoravnom smjeru
-            return if (dx > 0) {
-                super.scrollHorizontallyBy(dx, recycler, state)
-            } else {
-                0
-            }
+
+    private fun checkAnswer() {
+        val currentQuestion = questionList[currentQuestionIndex - 1]
+        val selectedAnswerIndex = getSelectedAnswerIndex()
+
+        questionList[currentQuestionIndex - 1].userAnswer = selectedAnswerIndex
+        questionList[currentQuestionIndex - 1].remainingTime = remainingTime
+        if (selectedAnswerIndex == currentQuestion.correctAnswer) {
+            totalScore += 10
+        } else {
+            if (selectedAnswerIndex != -1)
+                totalScore -= 5
         }
     }
 
-    private fun startGame() {
-        score = 0
-        currentQuestionIndex = 0
-        updateScore()
-        //showQuestion(currentQuestionIndex)
-        startTimer()
+    private fun getSelectedAnswerIndex(): Int {
+        return when {
+            option1RadioButton.isChecked -> 1
+            option2RadioButton.isChecked -> 2
+            option3RadioButton.isChecked -> 3
+            option4RadioButton.isChecked -> 4
+            else -> -1
+        }
+    }
+
+    private fun resetRadioButtons() {
+        optionsRadioGroup.clearCheck()
+//        for (i in 0 until optionsRadioGroup.childCount) {
+//            val radioButton = optionsRadioGroup.getChildAt(i) as RadioButton
+//            radioButton.isClickable = true
+//        }
     }
 
     private fun generateQuestions(): List<PitanjaKoZnaZna> {
@@ -112,39 +147,25 @@ class KoZnaZnaGame : Fragment() {
     }
 
     private fun startTimer() {
-        timer = object : CountDownTimer(25000, 1000) {
+        timer = object : CountDownTimer(6000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
+                remainingTime = millisUntilFinished
                 val secondsLeft = millisUntilFinished / 1000
-                binding.timerTextView.text = secondsLeft.toString()
+                binding.timerTextView.text = "$secondsLeft s"
             }
 
             override fun onFinish() {
-                evaluateAnswer(null)
+//                for (i in 0 until optionsRadioGroup.childCount) {
+//                    val radioButton = optionsRadioGroup.getChildAt(i) as RadioButton
+//                    radioButton.isClickable = false
+//                }
+                remainingTime = 0
+                binding.nextButton.performClick()
             }
         }
         timer.start()
     }
 
-    private fun evaluateAnswer(selectedOption: RadioButton?) {
-//        val question = questionList[currentQuestionIndex]
-//        val selectedAnswer = selectedOption?.text.toString()
-//
-//        if (selectedAnswer == question.correctAnswer) {
-//            score += 10
-//        } else {
-//            score -= 5
-//        }
-//
-//        currentQuestionIndex++
-//        updateScore()
-//
-//        if (currentQuestionIndex < questionList.size) {
-//            showQuestion(currentQuestionIndex)
-//            timer.start()
-//        } else {
-//            endGame()
-//        }
-    }
 
     private fun endGame() {
         timer.cancel()
@@ -152,49 +173,8 @@ class KoZnaZnaGame : Fragment() {
     }
 
     private fun updateScore() {
-//        textViewScore.text = score.toString()
-    }
+        textViewScore.text = "Ukupan skor je: $totalScore"
 
-    inner class QuestionAdapter(private val questionList: List<PitanjaKoZnaZna>) :
-        RecyclerView.Adapter<QuestionAdapter.ViewHolder>() {
-
-        inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-            val questionTextView: TextView = itemView.findViewById(R.id.questionTextView)
-            private val optionsRadioGroup: RadioGroup =
-                itemView.findViewById(R.id.optionsRadioGroup)
-            val option1RadioButton: RadioButton = itemView.findViewById(R.id.option1RadioButton)
-            val option2RadioButton: RadioButton = itemView.findViewById(R.id.option2RadioButton)
-            val option3RadioButton: RadioButton = itemView.findViewById(R.id.option3RadioButton)
-            val option4RadioButton: RadioButton = itemView.findViewById(R.id.option4RadioButton)
-
-            init {
-                optionsRadioGroup.setOnCheckedChangeListener { group, checkedId ->
-                    val selectedOption = group.findViewById<RadioButton>(checkedId)
-                    val position = adapterPosition
-                    val question = questionList[position]
-                    question.userAnswer = selectedOption.id
-                }
-            }
-        }
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-            val view = LayoutInflater.from(parent.context)
-                .inflate(R.layout.ko_zna_zna_question, parent, false)
-            return ViewHolder(view)
-        }
-
-        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-            val question = questionList[position]
-            holder.questionTextView.text = question.questionText
-            holder.option1RadioButton.text = question.options[0]
-            holder.option2RadioButton.text = question.options[1]
-            holder.option3RadioButton.text = question.options[2]
-            holder.option4RadioButton.text = question.options[3]
-        }
-
-        override fun getItemCount(): Int {
-            return questionList.size
-        }
     }
 
 }

@@ -29,20 +29,26 @@
             android:textSize="18sp"
             android:textStyle="bold" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/pitanjaRecyclerView"
+             <LinearLayout
+            android:id="@+id/pitanjeView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            />
+            android:layout_height="wrap_content">
+
+            <include layout="@layout/ko_zna_zna_question" />
+        </LinearLayout>
+
+
         <TextView
-            android:id="@+id/rezultatiView"
+            android:id="@+id/textViewScore"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="gone"
-            android:textSize="30dp"
-            android:text="rezultati">
+            android:layout_marginTop="16dp"
+            android:textSize="30sp"
+            android:textAlignment="center"
+            android:visibility="gone">
 
         </TextView>
+
         <Button
             android:id="@+id/nextButton"
             android:layout_width="wrap_content"
@@ -50,6 +56,14 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="16dp"
             android:text="Next" />
+        <Button
+            android:id="@+id/finishButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp"
+            android:visibility="gone"
+            android:text="Finish" />
     </LinearLayout>
 
 </androidx.core.widget.NestedScrollView>
