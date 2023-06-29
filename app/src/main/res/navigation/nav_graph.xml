@@ -35,6 +35,9 @@
         <action
             android:id="@+id/action_loginFragment_to_profileFragment"
             app:destination="@id/profileFragment" />
+        <action
+            android:id="@+id/action_loginFragment_to_koZnaZnaGame"
+            app:destination="@id/koZnaZnaGame" />
     </fragment>
     <fragment
         android:id="@+id/registrationFragment"
@@ -45,4 +48,9 @@
             android:id="@+id/action_registrationFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/koZnaZnaGame"
+        android:name="com.example.igricaslagalica.view.KoZnaZnaGame"
+        android:label="fragment_ko_zna_zna_game"
+        tools:layout="@layout/fragment_ko_zna_zna_game" />
 </navigation>

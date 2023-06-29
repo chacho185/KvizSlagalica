@@ -47,7 +47,7 @@ class LoginFragment : Fragment(), AuthListener {
         }
 
         binding.buttonPlay.setOnClickListener {
-//            findNavController().navigate(R.id.)
+           findNavController().navigate(R.id.action_loginFragment_to_koZnaZnaGame)
         }
     }
 
