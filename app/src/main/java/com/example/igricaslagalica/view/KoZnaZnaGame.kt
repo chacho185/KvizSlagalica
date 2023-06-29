@@ -21,8 +21,6 @@ class KoZnaZnaGame : Fragment() {
     private val binding get() = _binding!!
     private val sharedViewModel: SharedViewModel by activityViewModels()
 
-
-
     private lateinit var textViewScore: TextView
     private lateinit var questionTextView: TextView
     private lateinit var optionsRadioGroup: RadioGroup
@@ -60,7 +58,6 @@ class KoZnaZnaGame : Fragment() {
         textViewScore = binding.textViewScore
         questionList = generateQuestions()
 
-
         binding.nextButton.setOnClickListener {
             timer.cancel()
             checkAnswer()
@@ -69,8 +66,6 @@ class KoZnaZnaGame : Fragment() {
         binding.finishButton.setOnClickListener {
             sharedViewModel.setQuestionList(questionList)
 
-            val q = sharedViewModel.getQuestionList()
-            q.size
             // TODO: sljedeca igra
         }
         showNextQuestion()
@@ -94,16 +89,9 @@ class KoZnaZnaGame : Fragment() {
             currentQuestionIndex++
             startTimer()
         } else {
-            binding.pitanjeView.visibility = View.GONE
-            binding.textViewScore.visibility = View.VISIBLE
-            binding.nextButton.visibility = View.GONE
-            binding.finishButton.visibility = View.VISIBLE
-            binding.timerTextView.visibility = View.GONE
-            updateScore()
             endGame()
         }
     }
-
 
     private fun checkAnswer() {
         val currentQuestion = questionList[currentQuestionIndex - 1]
@@ -131,10 +119,6 @@ class KoZnaZnaGame : Fragment() {
 
     private fun resetRadioButtons() {
         optionsRadioGroup.clearCheck()
-//        for (i in 0 until optionsRadioGroup.childCount) {
-//            val radioButton = optionsRadioGroup.getChildAt(i) as RadioButton
-//            radioButton.isClickable = true
-//        }
     }
 
     private fun generateQuestions(): List<PitanjaKoZnaZna> {
@@ -147,18 +131,16 @@ class KoZnaZnaGame : Fragment() {
     }
 
     private fun startTimer() {
-        timer = object : CountDownTimer(6000, 1000) {
+        timer = object : CountDownTimer(5000, 10) {
             override fun onTick(millisUntilFinished: Long) {
                 remainingTime = millisUntilFinished
                 val secondsLeft = millisUntilFinished / 1000
-                binding.timerTextView.text = "$secondsLeft s"
+                val millisecondsLeft = millisUntilFinished % 1000
+                binding.timerTextView.text =
+                    String.format("%2d s: %s ms", secondsLeft, millisecondsLeft)
             }
 
             override fun onFinish() {
-//                for (i in 0 until optionsRadioGroup.childCount) {
-//                    val radioButton = optionsRadioGroup.getChildAt(i) as RadioButton
-//                    radioButton.isClickable = false
-//                }
                 remainingTime = 0
                 binding.nextButton.performClick()
             }
@@ -166,17 +148,18 @@ class KoZnaZnaGame : Fragment() {
         timer.start()
     }
 
-
     private fun endGame() {
         timer.cancel()
-        // Prikaz rezultata i ostale logike nakon završetka igre
+        binding.pitanjeView.visibility = View.GONE
+        binding.textViewScore.visibility = View.VISIBLE
+        binding.nextButton.visibility = View.GONE
+        binding.finishButton.visibility = View.VISIBLE
+        binding.timerTextView.visibility = View.GONE
+        updateScore()
     }
 
     private fun updateScore() {
         textViewScore.text = "Ukupan skor je: $totalScore"
-
     }
 
 }
-
-
