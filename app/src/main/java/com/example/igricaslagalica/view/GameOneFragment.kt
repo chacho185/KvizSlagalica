@@ -1,8 +1,11 @@
 package com.example.igricaslagalica.view
 
+import android.content.ContentValues
+import android.content.ContentValues.TAG
 import android.content.Context
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,14 +33,15 @@ class GameOneFragment : Fragment() {
 
     private lateinit var player1Score: TextView
     private lateinit var player2Score: TextView
-    var selectedQuestionIndex: Int? = null
-    var selectedAnswerIndex: Int? = null
+    var selectedQuestionIndex: Int? = 0
+    var selectedAnswerIndex: Int? = 0
 
     private lateinit var switchPlayerButton: Button
     private lateinit var timer: CountDownTimer
     private val timerDuration = 30000L // 30 seconds
     private lateinit var timerTextView: TextView
-
+    private lateinit var currentPlayerTurn: TextView
+    private var gameId = ""
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Initialize the game controller
@@ -64,7 +68,7 @@ class GameOneFragment : Fragment() {
 
         timerTextView = view.findViewById(R.id.gameTimer)
         switchPlayerButton = view.findViewById(R.id.submit)
-
+        currentPlayerTurn = view.findViewById(R.id.currentPlayerTurn)
         // Initialize timer
         timer = object : CountDownTimer(timerDuration, 1000) {
             override fun onTick(millisUntilFinished: Long) {
@@ -92,16 +96,7 @@ class GameOneFragment : Fragment() {
         val sharedPreferences = activity?.getSharedPreferences("MyApp", Context.MODE_PRIVATE)
         val currentPlayerId = sharedPreferences?.getString("currentPlayerId", null)
 
-
-        if (gameId != null) {
-            if (currentPlayerId != null) {
-                gameController.createGame(currentPlayerId) { questions ->
-                    questionsAdapter.updateData(questions)
-                    answersAdapter.updateData(questions)
-                }
-
-            }
-
+        if (gameId != null && currentPlayerId != null) {
             loadingIndicator.visibility = View.VISIBLE
 
             gameController.watchGame(gameId) { game ->
@@ -110,7 +105,22 @@ class GameOneFragment : Fragment() {
                     questionsAdapter.updateData(game.questionInfo)
                    // questionsAdapter.notifyDataSetChanged()
                     answersAdapter.updateData(game.questionInfo)
-                    timer.start()
+                    // Check if it's the current player's turn
+                    if (game.currentTurn == currentPlayerId) {
+                        // It's the current player's turn. Enable the UI.
+                        switchPlayerButton.isEnabled = true
+                        // TODO: Enable other UI elements
+
+                        getCurrentPlayer(currentPlayerId)
+                        timer.start()
+                    } else {
+                        // It's not the current player's turn. Disable the UI.
+                        switchPlayerButton.isEnabled = false
+                        // TODO: Disable other UI elements
+
+                        //getPlayerName(currentPlayerId)
+                        timer.cancel()
+                    }
                 } else {
                     // Obradite situaciju kad je igra završena ili ne postoji
                 }
@@ -118,42 +128,68 @@ class GameOneFragment : Fragment() {
         }
 
         switchPlayerButton.setOnClickListener {
-            if (gameId != null && currentPlayerId != null) {
+
+//                     switchPlayer()
+//                     updateScores()
+            if (gameId != null) {
                 gameController.getGame(gameId) { game ->
                     if (game != null) {
-                        // Switch player
-                        switchPlayer()
+                        //  switchPlayer()
+                        //   updateScores()
 
-                        // Update scores
-                        updateScores()
+                        Log.w(ContentValues.TAG, "Listen failed panjevi. ${game.questionInfo.size} ++ $selectedQuestionIndex")
+                        val connection = game.questionInfo[selectedQuestionIndex!!]
+                        //gameController.checkAnswer()
+                        gameController.updateGameAfterAnswer(game, game.currentTurn, connection) { success ->
+                            if (success) {
+                                Log.w(TAG, "Player turn ID ${game.currentTurn} ")
+                                // If the update was successful, switch turn
+                                val scorePlayer1 = game.player1Score.toString()
+                                val scorePlayer2 = game.player2Score.toString()
+                                updateScore(scorePlayer1, scorePlayer2)
+                                gameController.switchTurn(game, game.currentTurn) { success1 ->
+                                    if (success1) {
+                                        Log.w(TAG, "Player turn ID 23 =  ${game.currentTurn} ")
+                                        getCurrentPlayer(game.currentTurn)
+                                        // The turn has been switched successfully
+                                        // TODO: Check if the game has ended. If not, restart the timer
+                                    } else {
+                                        // Handle error
+                                    }
+                                }
+                            } else {
+                                // Handle error
+                            }
+                        }
 
-//                        val connection = game.questionInfo[selectedQuestionIndex!!] // pretpostavljam da imate selectedQuestionIndex
-//                        gameController.updateGame(game, currentPlayerId, connection) { success ->
-//                            if (success) {
-//                                // Restart timer
-//                                timer.start()
-//                            } else {
-//                                // Handle error
-//                            }
-//                        }
                     } else {
                         // Handle error
                     }
                 }
             }
+
+
+
         }
 
 
 
     }
 
-
-
+    private fun updateScore(scorePlayer1: String, scorePlayer2: String){
+        player1Score.text = "Player 1: $scorePlayer1"
+        player2Score.text = "Player 2: $scorePlayer2"
+    }
+    private fun getCurrentPlayer(currentPlayerId: String){
+        gameController.getPlayerName(currentPlayerId) { playerName ->
+            currentPlayerTurn.text =  "$playerName playing" ?: "Unknown Player"
+        }
+    }
     private fun switchPlayer() {
         // stop the timer if it's still counting down
         timer.cancel()
 
-        gameController.switchPlayer()
+      //  gameController.switchPlayer()
         val unansweredQuestions = gameController.getUnansweredConnections()
         questionsAdapter.updateData(unansweredQuestions)
         val correspondingUnansweredAnswers = gameController.getUnansweredConnections()
@@ -181,18 +217,42 @@ class GameOneFragment : Fragment() {
         checkAnswer()
     }
     fun checkAnswer() {
+        val gameId = arguments?.getString("gameId")
         if (selectedQuestionIndex != null && selectedAnswerIndex != null) {
-            val correct = gameController.processAnswer(selectedQuestionIndex!!, selectedAnswerIndex!!)
-            if (correct) {
-                // Mark the questions and answers as selected
-                questionsAdapter.notifyItemChanged(selectedQuestionIndex!!)
-                answersAdapter.notifyItemChanged(selectedAnswerIndex!!)
+            if (gameId != null) {
+                gameController.getGame(gameId) { game ->
+                    if (game != null) {
+                        val connection = game.questionInfo[selectedQuestionIndex!!]
+                        val userAnswer = // get user's answer here
 
+                        gameController.answerQuestion(game, game.currentTurn, connection, selectedQuestionIndex!!, selectedAnswerIndex!!  ) { success ->
+                                if (success) {
+                                    // Update the UI to reflect the new game state
+                                } else {
+                                    // Handle failure
+                                }
+                            }
+                    }
+                }
             }
-            // Reset selected indexes
-            //  selectedQuestionIndex = null
-            //    selectedAnswerIndex = null
         }
+
+
+
+
+//        if (selectedQuestionIndex != null && selectedAnswerIndex != null) {
+//            val correct = gameController.processAnswer(selectedQuestionIndex!!, selectedAnswerIndex!!)
+//            if (correct) {
+//                // Mark the questions and answers as selected
+//                questionsAdapter.notifyItemChanged(selectedQuestionIndex!!)
+//                answersAdapter.notifyItemChanged(selectedAnswerIndex!!)
+//
+//            }
+//
+////         Reset selected indexes
+////              selectedQuestionIndex = null
+////                selectedAnswerIndex = null
+//        }
     }
 
     companion object {

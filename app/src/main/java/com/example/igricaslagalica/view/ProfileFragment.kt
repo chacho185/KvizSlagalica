@@ -137,7 +137,7 @@ class ProfileFragment : Fragment() {
                     gameController.joinGame(it, playerId) { success ->
                         if (success) {
                             Log.d("joinGame", "Successfully joined the game")
-                            Toast.makeText(context, "Successfully joined the game", Toast.LENGTH_LONG).show()
+                            Toast.makeText(context, "Joined to $it", Toast.LENGTH_LONG).show()
                             val bundle = bundleOf("gameId" to it)
 
                             findNavController().navigate(R.id.action_profileFragment_to_playOnline, bundle)
@@ -154,7 +154,9 @@ class ProfileFragment : Fragment() {
                     if (success) {
                         Log.d("startGame", "Successfully started a new game with gameId: $gameId")
                         // Create the game with the list of questions
-//                        gameController.createGame(gameId)
+//                        gameController.createGame(playerId)
+                        Toast.makeText(context, "Started $gameId", Toast.LENGTH_LONG).show()
+
                         val bundle = bundleOf("gameId" to gameId)
                         findNavController().navigate(R.id.action_profileFragment_to_playOnline, bundle)
 

@@ -44,7 +44,7 @@ class QuestionsAdapter(private var questions: List<Connection>,
             }
             // Change the background color if the question is answered
             if (question.answered) {
-                itemView.setBackgroundColor(Color.BLUE)
+                itemView.setBackgroundColor(Color.YELLOW)
             }
 
         }
