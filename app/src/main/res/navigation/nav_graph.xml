@@ -41,6 +41,9 @@
         <action
             android:id="@+id/action_loginFragment_to_mojBroj"
             app:destination="@id/mojBroj" />
+        <action
+            android:id="@+id/action_loginFragment_to_korakPoKorak"
+            app:destination="@id/korakPoKorak" />
     </fragment>
     <fragment
         android:id="@+id/registrationFragment"
@@ -61,4 +64,9 @@
         android:name="com.example.igricaslagalica.view.MojBroj"
         android:label="fragment_moj_broj"
         tools:layout="@layout/fragment_moj_broj" />
+    <fragment
+        android:id="@+id/korakPoKorak"
+        android:name="com.example.igricaslagalica.view.KorakPoKorak"
+        android:label="fragment_korak_po_korak"
+        tools:layout="@layout/fragment_korak_po_korak" />
 </navigation>

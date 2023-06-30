@@ -22,8 +22,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 class LoginFragment : Fragment(), AuthListener {
 
     private var _binding: FragmentLoginBinding? = null
-    private val binding get() = _binding!!
-    private val sharedViewModel: SharedViewModel by activityViewModels()
+        private val binding get() = _binding!!
+        private val sharedViewModel: SharedViewModel by activityViewModels()
 
 
     // Dodajte instancu FirebaseAuthController-a
@@ -53,7 +53,8 @@ class LoginFragment : Fragment(), AuthListener {
 
         binding.buttonPlay.setOnClickListener {
            //findNavController().navigate(R.id.action_loginFragment_to_koZnaZnaGame)
-            findNavController().navigate(R.id.action_loginFragment_to_mojBroj)
+            //findNavController().navigate(R.id.action_loginFragment_to_mojBroj)
+            findNavController().navigate(R.id.action_loginFragment_to_korakPoKorak)
         }
     }
 
