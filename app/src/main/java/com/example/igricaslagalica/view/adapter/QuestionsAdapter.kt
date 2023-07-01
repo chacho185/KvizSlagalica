@@ -17,15 +17,12 @@ class QuestionsAdapter(private var questions: List<Connection>,
     inner class QuestionViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val questionText: TextView = itemView.findViewById(R.id.questionText)
         fun bind(question: Connection, position: Int) {
-           // itemView.questionText.text = question
+            // itemView.questionText.text = question
             questionText.text = question.question
-            // Add a touch listener to the itemView
-//            itemView.setOnClickListener {
-//                onQuestionSelected(question)
-//                itemView.setBackgroundColor(Color.LTGRAY)
-//            }
+
             itemView.setOnClickListener {
                 onQuestionSelected(adapterPosition)
+
                 // If a different item was selected, refresh the old item (to change its color back)
                 if (selectedPosition != position && selectedPosition != -1) {
                     notifyItemChanged(selectedPosition)
@@ -42,12 +39,10 @@ class QuestionsAdapter(private var questions: List<Connection>,
             if (selectedPosition != position) {
                 itemView.setBackgroundColor(Color.WHITE) // replace with the original color
             }
-            // Change the background color if the question is answered
-            if (question.answered) {
-                itemView.setBackgroundColor(Color.BLUE)
-            }
+
 
         }
+
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): QuestionViewHolder {
@@ -61,6 +56,19 @@ class QuestionsAdapter(private var questions: List<Connection>,
 
     override fun onBindViewHolder(holder: QuestionViewHolder, position: Int) {
         val question = questions[position]
+        // Disable the item only if it has been answered correctly
+//        holder.itemView.isEnabled = !(question.answered && question.correct)
+//
+//        // Change the color of the item if it has been answered
+//        if (question.answered) {
+//            if (question.correct) {
+//                holder.itemView.setBackgroundColor(Color.GREEN)  // Or whatever color you want
+//            } else {
+//                holder.itemView.setBackgroundColor(Color.RED)  // Or whatever color you want
+//            }
+//        } else {
+//            holder.itemView.setBackgroundColor(Color.WHITE) // Or whatever color you want
+//        }
         holder.bind(question, position)
     }
     fun updateData(newQuestions: List<Connection>) {

@@ -64,12 +64,18 @@ class LoginFragment : Fragment(), AuthListener {
 
 
         // TODO Prosiriti funkciju singIn da moze primiti i username a ne samo email
-        if (email.isNotEmpty() && password.isNotEmpty())
+        if(email.isNotEmpty() && password.isNotEmpty())
+
             authController.signIn(email, password, this)
-        else
+        else {
+            val defaultEmail = "a@gmail.com" // Default email value
+            val defaultPassword = "test123" // Default password value
+
+            authController.signIn(defaultEmail, defaultPassword, this)
+
             Toast.makeText(context, "Morate unijeti email/username i password!", Toast.LENGTH_SHORT)
                 .show()
-
+        }
     }
 
     override fun onAuthSuccess() {

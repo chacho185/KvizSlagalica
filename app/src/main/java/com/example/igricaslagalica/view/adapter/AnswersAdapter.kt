@@ -39,10 +39,7 @@ private var selectedPosition = -1
             if (selectedPosition != position) {
                 itemView.setBackgroundColor(Color.WHITE) // replace with the original color
             }
-            // Change the background color if the question is answered
-//            if (answer.answered) {
-//                itemView.setBackgroundColor(Color.BLUE)
-//            }
+
         }
     }
 

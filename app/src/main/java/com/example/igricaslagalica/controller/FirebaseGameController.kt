@@ -10,10 +10,14 @@ class FirebaseGameController() {
     private val db = FirebaseFirestore.getInstance()
 
     fun startGame(playerId: String, onComplete: (Boolean, String) -> Unit) {
-        val game = Game(player1 = playerId)
+        val game = Game(player1 = playerId, currentTurn = playerId)
         db.collection("games").add(game).addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                onComplete(true, task.result?.id ?: "")
+                val gameId = task.result?.id ?: ""
+                createGame(playerId, gameId) { updatedGameId ->
+                    onComplete(true, updatedGameId)
+                }
+               // onComplete(true, task.result?.id ?: "")
             } else {
                 onComplete(false, "")
             }
@@ -50,23 +54,42 @@ class FirebaseGameController() {
             }
     }
 
+    fun createGame(playerId: String, gameId: String, onQuestionsFetched: (String) -> Unit) {
+        FirebaseFirestore.getInstance().collection("spojnicaQuestions").get().addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val allQuestions = task.result?.documents?.mapNotNull { it.toObject(Connection::class.java) }
 
-//    fun listenForGames(playerId: String, onGameFound: (Game) -> Unit) {
-//        db.collection("games")
-//            .whereEqualTo("status", "waiting")
-//            .whereNotEqualTo("player1", playerId)
-//            .addSnapshotListener { value, _ ->
-//                for (document in value!!) {
-//                    val game = document.toObject(Game::class.java)
-//                    if (game.status == "waiting") {
-//                        // pronađena partija koja čeka igrača, ažurirajte dokument sa novim statusom i drugim igračem
-//                        document.reference.update("status", "playing", "player2", playerId)
-//                        onGameFound(game)
-//                        break
-//                    }
-//                }
-//            }
-//    }
+                // Continue only if the questions are fetched successfully
+                if (allQuestions != null) {
+                    //val gameQuestions = allQuestions.shuffled().take(3)
+                    val gameQuestions = allQuestions.shuffled().take(5).map {
+                        Connection(
+                            question = it.question,
+                            answer = it.answer,
+                            assignedToPlayer = playerId
+                        )
+                    }
+                    val gameRef = db.collection("games").document(gameId)
+                    val game = Game(
+                        id = gameId,
+                        player1 = playerId,
+                        questionInfo = gameQuestions,
+                        currentTurn = playerId
+                    )
+
+                    gameRef.set(game).addOnSuccessListener {
+                        // Ostatak koda za kreiranje igre...
+                        Log.w(TAG, "Game updated: $gameId")
+
+                        // Notify the caller that the questions have been fetched
+                        onQuestionsFetched(gameId)
+                    }
+                } else {
+                    // Handle the case where the questions are not fetched successfully
+                }
+            }
+        }
+    }
 
 
 }

@@ -1,6 +1,7 @@
 package com.example.igricaslagalica.controller
 
 import android.content.ContentValues
+import android.content.ContentValues.TAG
 import android.util.Log
 import android.widget.ProgressBar
 import com.example.igricaslagalica.model.Connection
@@ -9,6 +10,7 @@ import com.example.igricaslagalica.model.Player
 import com.example.igricaslagalica.model.Question
 import com.example.igricaslagalica.model.Round
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 
 enum class GameState {
     ROUND_ONE_PLAYER_ONE,
@@ -20,24 +22,7 @@ enum class GameState {
 
 class SpojnicaGameController {
 
-        private val db = FirebaseFirestore.getInstance()
-        private var currentPlayer: Int = 1
-        private val playerScores = mutableMapOf(1 to 0, 2 to 0)
-        private val questions = mutableListOf(
-            Connection("Izvođač 13", "Pesma 1"),
-            Connection("Izvođač 23", "Pesma 2"),
-            Connection("Izvođač 3", "Pesma 3"),
-            Connection("Izvođač 4", "Pesma 4"),
-            Connection("Izvođač 5", "Pesma 5"),
-            // ...more questions here...
-        )
-    private val madeConnections = mutableListOf<Pair<Int, Int>>()
-
-    private var gameState = GameState.ROUND_ONE_PLAYER_ONE
-    private val questionsAndAnswers = mutableListOf<Pair<String, String>>()
-    private val unansweredQuestionIndices = mutableListOf<Int>()
-    private val unansweredConnections = questions.toMutableList()
-
+    private val db = FirebaseFirestore.getInstance()
     fun watchGame(gameId: String, onUpdate: (Game?) -> Unit) {
 
         db.collection("games").document(gameId)
@@ -50,7 +35,8 @@ class SpojnicaGameController {
 
                 if (snapshot != null && snapshot.exists()) {
                     Log.d(ContentValues.TAG, "Current data: ${snapshot.data}")
-                    onUpdate(snapshot.toObject(Game::class.java))
+                    val game = snapshot.toObject(Game::class.java)
+                    onUpdate(game)
                 } else {
                     Log.d(ContentValues.TAG, "Current data: null")
                     onUpdate(null)
@@ -58,13 +44,18 @@ class SpojnicaGameController {
             }
     }
 
-//
-
     // Metoda za preuzimanje igre s Firestore-a
     fun getGame(gameId: String, callback: (Game?) -> Unit) {
         db.collection("games").document(gameId).get()
             .addOnSuccessListener { documentSnapshot ->
-                callback(documentSnapshot.toObject(Game::class.java))
+                val game = documentSnapshot.toObject(Game::class.java)
+                Log.w(TAG,"Game objekt preuzet $game}")
+
+                if (game != null) {
+                    Log.w(TAG,"Game objekt preuzet $game lista ${game.questionInfo.size}")
+                }
+                callback(game)
+               // callback(documentSnapshot.toObject(Game::class.java))
             }
             .addOnFailureListener {
                 callback(null)
@@ -74,153 +65,152 @@ class SpojnicaGameController {
     fun checkAnswer(connection: Connection, answer: String): Boolean {
         return connection.answer == answer
     }
-    fun processAnswer(questionIndex: Int, answerIndex: Int): Boolean {
-        if (questionIndex == answerIndex) {
-            playerScores[currentPlayer] = playerScores.getValue(currentPlayer) + 2
-            return true
-        } else {
-            return false
-        }
-    }
+
 
     // Metoda za ažuriranje igre na Firestore-u
-    fun updateGame(game: Game, currentPlayerId: String, connection: Connection, callback: (Boolean) -> Unit) {
-        // Check the connection
-        connection.correct = checkAnswer(connection, connection.answer)
-        connection.answered = true
-        connection.answeredBy = currentPlayerId
+    fun updateGameField(gameId: String, field: String, value: Any, callback: (Boolean) -> Unit) {
+        db.collection("games").document(gameId)
+            .update(field, value)
+            .addOnSuccessListener {
+                callback(true)
+            }
+            .addOnFailureListener {
+                callback(false)
+            }
+    }
+    fun updateGameAfterAnswer(game: Game, currentPlayerId: String, connection: Connection, callback: (Boolean) -> Unit) {
+        var playerScore = 0
+
+        // Loop through all the questions
+        for (connection in game.questionInfo) {
+            // If the question was answered by the current player and is correct, increment the score
+            if (connection.answeredBy == currentPlayerId && connection.correct) {
+                playerScore += 2
+            }
+        }
 
         // Update the player's score
         if (connection.correct) {
             if (game.player1 == currentPlayerId) {
-                game.player1Score += 2
+                game.player1Score += playerScore
             } else if (game.player2 == currentPlayerId) {
-                game.player2Score += 2
+                game.player2Score += playerScore
             }
         }
-
         game.id?.let { gameId ->
-            db.collection("games").document(gameId)
-                .update("questionInfo", game.questionInfo, "player1Score", game.player1Score, "player2Score", game.player2Score)
-                .addOnSuccessListener {
-                    callback(true)
-                }
-                .addOnFailureListener {
-                    callback(false)
-                }
-        }
-
-    }
-
-//    fun makeConnection(questionIndex: Int, answerIndex: Int) {
-//        val connection = questions[questionIndex]
-//        if (connection.answeredBy == null  && checkAnswer(questionIndex, answerIndex)) {
-//            val connectionPair = Pair(questionIndex, answerIndex)
-//            madeConnections.add(connectionPair)
-//            // update score...
-//            playerScores[currentPlayer] = playerScores.getValue(currentPlayer) + 2
-//            Log.d("GameController", "Correct answer! Score is now: ")
-//            // Mark the questions as answered
-//            connection.answered = true
-//            unansweredConnections.remove(connection)
-//            checkGameState()
-//        } else {
-//            Log.d("GameController", "Incorrect answer or connection already made.")
-//        }
-//    }
-
-    fun generateNewConnections(): List<Connection> {
-
-
-        // Shuffle the questions before each game
-        questions.shuffle()
-
-        return questions.map { Connection(it.question, it.answer) }
-    }
-    fun checkGameState() {
-        if (questionsAndAnswers.size == 5) {
-            // All questions are answered, proceed to the next round or player
-            when (gameState) {
-                GameState.ROUND_ONE_PLAYER_ONE -> gameState = GameState.ROUND_ONE_PLAYER_TWO
-                GameState.ROUND_ONE_PLAYER_TWO -> gameState = GameState.ROUND_TWO_PLAYER_ONE
-                GameState.ROUND_TWO_PLAYER_ONE -> gameState = GameState.ROUND_TWO_PLAYER_TWO
-                GameState.ROUND_TWO_PLAYER_TWO -> endGame()
-            }
-        }
-    }
-
-    fun endGame() {
-        // End the game here
-    }
-
-    fun checkAnswer(questionIndex: Int, answerIndex: Int): Boolean {
-     //   return questionIndex == answerIndex
-        val connection = questions[questionIndex]
-        if(questionIndex == answerIndex) {
-            connection.answeredBy = currentPlayer.toString()
-            return true
-        }
-        return false
-    }
-    fun switchPlayer() {
-        currentPlayer = if (currentPlayer == 1) 2 else 1
-
-//        when (gameState) {
-//            GameState.ROUND_ONE_PLAYER_ONE -> gameState = GameState.ROUND_ONE_PLAYER_TWO
-//            GameState.ROUND_ONE_PLAYER_TWO -> gameState = GameState.ROUND_TWO_PLAYER_ONE
-//            GameState.ROUND_TWO_PLAYER_ONE -> gameState = GameState.ROUND_TWO_PLAYER_TWO
-//            GameState.ROUND_TWO_PLAYER_TWO -> gameState = GameState.ROUND_ONE_PLAYER_ONE
-//        }
-        when (gameState) {
-            GameState.ROUND_ONE_PLAYER_ONE -> gameState = GameState.ROUND_ONE_PLAYER_TWO
-            GameState.ROUND_ONE_PLAYER_TWO -> {
-                gameState = GameState.ROUND_TWO_PLAYER_ONE
-                unansweredQuestionIndices.clear()
-                unansweredQuestionIndices.addAll(questions.indices)
-            }
-            GameState.ROUND_TWO_PLAYER_ONE -> gameState = GameState.ROUND_TWO_PLAYER_TWO
-            GameState.ROUND_TWO_PLAYER_TWO -> {
-                gameState = GameState.ROUND_ONE_PLAYER_ONE
-                unansweredQuestionIndices.clear()
-                unansweredQuestionIndices.addAll(questions.indices)
-            }
-        }
-    }
-    fun createGame(playerId: String, onQuestionsFetched: (List<Connection>) -> Unit) {
-        FirebaseFirestore.getInstance().collection("spojnicaQuestions").get().addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                val allQuestions = task.result?.documents?.mapNotNull { it.toObject(Connection::class.java) }
-
-                // Continue only if the questions are fetched successfully
-                if (allQuestions != null) {
-                    val gameQuestions = allQuestions.shuffled().take(3)
-
-                    val gameRef = db.collection("games").document()
-                    val game = Game(
-                        id = gameRef.id,
-                        player1 = playerId,
-                        questionInfo = gameQuestions
-                    )
-
-                    gameRef.set(game).addOnSuccessListener {
-                        // Ostatak koda za kreiranje igre...
-
-                        // Notify the caller that the questions have been fetched
-                        onQuestionsFetched(gameQuestions)
+            updateGameField(gameId, "player1Score", game.player1Score) { success1 ->
+                if (success1) {
+                    updateGameField(gameId, "player2Score", game.player2Score) { success2 ->
+                        callback(success2)
                     }
                 } else {
-                    // Handle the case where the questions are not fetched successfully
+                    callback(false)
+                }
+            }
+        }
+
+    }
+
+    fun answerQuestion(game: Game, currentPlayerId: String,connection: Connection, questionIndex:Int, answerIndex:Int,  callback: (Boolean) -> Unit) {
+        // Check the connection
+        connection.correct = processAnswer(questionIndex, answerIndex)
+        connection.answered = true
+        connection.answeredBy = currentPlayerId
+
+
+
+        game.id?.let { gameId ->
+            updateGameField(gameId, "questionInfo", game.questionInfo) { success ->
+                if (success) {
+                    // If all updates are successful, invoke callback with true
+                    callback(true)
+                } else {
+                    // Invoke callback with false if questionInfo update failed
+                    callback(false)
+                }
+            }
+        }
+
+    }
+
+    fun switchTurn(game: Game, currentPlayerId: String, callback: (Boolean) -> Unit) {
+        val otherPlayerId = if (game.player1 == currentPlayerId) game.player2 else game.player1
+        if (otherPlayerId != null) {
+            game.currentTurn = otherPlayerId // update the Game object in memory
+        }
+        game.id?.let { gameId ->
+            if (otherPlayerId != null) {
+                updateGameField(gameId, "currentTurn", otherPlayerId, callback)
+            }
+        }
+    }
+    fun endRound(gameId: String) {
+        val gameRef = db.collection("games").document(gameId)
+        gameRef.get().addOnSuccessListener { document ->
+            val game = document.toObject(Game::class.java)
+
+            if (game != null) {
+                val isRoundOver = game.questionInfo.all { it.assignedToPlayer != null && it.answered }
+                // ovo nam automatski prebacuje na drugu rundu i generise pitanja nakon sto player 1 zavrsi
+                if (isRoundOver || game.currentTurn == game.player2) {
+                    game.currentRound++
+
+                        generateNewQuestions(game) { newQuestions ->
+                            game.questionInfo = newQuestions
+                            gameRef.set(game, SetOptions.merge())
+                        }
+
+                } else {
+                    Log.w(TAG,"here we are 33")
+                    if (game.currentRound == 1) {
+                        game.questionInfo.forEach {
+                            if (!it.correct && it.assignedToPlayer == game.player1) {
+                                it.assignedToPlayer = game.player2
+                            }
+                        }
+                        game.currentRound++
+                    }
+                }
+                // Ažurirajte igru u Firestore
+                Log.w(TAG,"here we are end  ++ ${game}")
+
+                gameRef.set(game, SetOptions.merge())
+            }
+        }
+    }
+
+
+    fun generateNewQuestions(game: Game, onQuestionsFetched: (List<Connection>) -> Unit) {
+        db.collection("spojnicaQuestions").get().addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val allQuestions = task.result?.documents?.mapNotNull { it.toObject(Connection::class.java) }
+                if (allQuestions != null) {
+                    val gameQuestions = allQuestions.shuffled().take(5).map {
+                        Connection(
+                            question = it.question,
+                            answer = it.answer,
+                            assignedToPlayer = game.currentTurn
+                        )
+                    }
+                    onQuestionsFetched(gameQuestions)
                 }
             }
         }
     }
 
-    fun getUnansweredConnections(): List<Connection> {
-        return unansweredConnections
+    fun getPlayerName(playerId: String, onComplete: (String?) -> Unit) {
+        db.collection("players").document(playerId).get().addOnSuccessListener { documentSnapshot ->
+            val playerName = documentSnapshot.getString("username")
+            onComplete(playerName)
+        }.addOnFailureListener { e ->
+            Log.w(TAG, "Error retrieving player name", e)
+            onComplete(null)
+        }
     }
 
-    fun getScores(): Map<Int, Int> {
-        return playerScores
+
+    fun processAnswer(questionIndex: Int, answerIndex: Int): Boolean {
+        return questionIndex == answerIndex
     }
 
 }
