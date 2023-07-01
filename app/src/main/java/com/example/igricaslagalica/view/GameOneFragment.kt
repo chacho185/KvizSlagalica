@@ -77,6 +77,7 @@ class GameOneFragment : Fragment() {
 
             override fun onFinish() {
                 switchPlayer()
+               // gameController.endRound(gameId)
             }
         }
 
@@ -102,16 +103,24 @@ class GameOneFragment : Fragment() {
             gameController.watchGame(gameId) { game ->
                 loadingIndicator.visibility = View.GONE
                 if (game != null) {
-                    questionsAdapter.updateData(game.questionInfo)
-                   // questionsAdapter.notifyDataSetChanged()
-                    answersAdapter.updateData(game.questionInfo)
+//                    val currentPlayerId = game.currentTurn // Postavite ovo na ID trenutnog igrača
+//                    val filteredQuestions = game.questionInfo.filter { it.assignedToPlayer == currentPlayerId }
+                    val currentPlayerId = if (game?.currentRound == 0 || game?.currentRound == 1) game?.player1 else game?.player2
+                    val filteredQuestions = game?.questionInfo?.filter { it.assignedToPlayer == currentPlayerId }
+
+                    if (filteredQuestions != null) {
+                        questionsAdapter.updateData(filteredQuestions)
+                        answersAdapter.updateData(filteredQuestions)
+
+                    }
+
                     // Check if it's the current player's turn
                     if (game.currentTurn == currentPlayerId) {
                         // It's the current player's turn. Enable the UI.
                         switchPlayerButton.isEnabled = true
                         // TODO: Enable other UI elements
 
-                        getCurrentPlayer(currentPlayerId)
+                        getCurrentPlayer(currentPlayerId, game.currentRound)
                         timer.start()
                     } else {
                         // It's not the current player's turn. Disable the UI.
@@ -149,8 +158,10 @@ class GameOneFragment : Fragment() {
                                 updateScore(scorePlayer1, scorePlayer2)
                                 gameController.switchTurn(game, game.currentTurn) { success1 ->
                                     if (success1) {
-                                        Log.w(TAG, "Player turn ID 23 =  ${game.currentTurn} ")
-                                        getCurrentPlayer(game.currentTurn)
+//                                        gameController.endRound1(gameId)
+                                        game.id?.let { it1 -> gameController.endRound(it1) }
+                                        getCurrentPlayer(game.currentTurn, game.currentRound)
+                                        switchPlayer()
                                         // The turn has been switched successfully
                                         // TODO: Check if the game has ended. If not, restart the timer
                                     } else {
@@ -161,6 +172,7 @@ class GameOneFragment : Fragment() {
                                 // Handle error
                             }
                         }
+
 
                     } else {
                         // Handle error
@@ -180,9 +192,10 @@ class GameOneFragment : Fragment() {
         player1Score.text = "Player 1: $scorePlayer1"
         player2Score.text = "Player 2: $scorePlayer2"
     }
-    private fun getCurrentPlayer(currentPlayerId: String){
+
+    private fun getCurrentPlayer(currentPlayerId: String, round: Int){
         gameController.getPlayerName(currentPlayerId) { playerName ->
-            currentPlayerTurn.text =  "$playerName playing" ?: "Unknown Player"
+            currentPlayerTurn.text =  "Round $round: $playerName playing" ?: "Unknown Player"
         }
     }
     private fun switchPlayer() {
@@ -190,11 +203,11 @@ class GameOneFragment : Fragment() {
         timer.cancel()
 
       //  gameController.switchPlayer()
-        val unansweredQuestions = gameController.getUnansweredConnections()
-        questionsAdapter.updateData(unansweredQuestions)
-        val correspondingUnansweredAnswers = gameController.getUnansweredConnections()
-        answersAdapter.updateData(correspondingUnansweredAnswers)
-        // TODO: check if game is over, if not, restart the timer
+//        val unansweredQuestions = gameController.getUnansweredConnections()
+//        questionsAdapter.updateData(unansweredQuestions)
+//        val correspondingUnansweredAnswers = gameController.getUnansweredConnections()
+//        answersAdapter.updateData(correspondingUnansweredAnswers)
+//        // TODO: check if game is over, if not, restart the timer
         timer.start()
     }
 

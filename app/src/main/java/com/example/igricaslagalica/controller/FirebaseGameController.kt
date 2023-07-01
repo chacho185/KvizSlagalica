@@ -61,8 +61,14 @@ class FirebaseGameController() {
 
                 // Continue only if the questions are fetched successfully
                 if (allQuestions != null) {
-                    val gameQuestions = allQuestions.shuffled().take(3)
-
+                    //val gameQuestions = allQuestions.shuffled().take(3)
+                    val gameQuestions = allQuestions.shuffled().take(5).map {
+                        Connection(
+                            question = it.question,
+                            answer = it.answer,
+                            assignedToPlayer = playerId
+                        )
+                    }
                     val gameRef = db.collection("games").document(gameId)
                     val game = Game(
                         id = gameId,
