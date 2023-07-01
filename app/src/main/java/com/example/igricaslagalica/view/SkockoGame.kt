@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import com.example.igricaslagalica.R
 import com.example.igricaslagalica.SharedViewModel
 import com.example.igricaslagalica.databinding.FragmentSkockoGameBinding
@@ -42,6 +43,9 @@ class SkockoGame : Fragment() {
         napuniListuPolja()
         napuniHintListu()
         startGame()
+        binding.finishButton.setOnClickListener {
+            findNavController().navigate(R.id.action_skockoGame_to_singlePlayer)
+        }
     }
 
     private fun napuniListuPolja() {

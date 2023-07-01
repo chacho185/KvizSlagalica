@@ -22,16 +22,18 @@ import com.google.firebase.firestore.FirebaseFirestore
 class LoginFragment : Fragment(), AuthListener {
 
     private var _binding: FragmentLoginBinding? = null
-        private val binding get() = _binding!!
-        private val sharedViewModel: SharedViewModel by activityViewModels()
+    private val binding get() = _binding!!
+    private val sharedViewModel: SharedViewModel by activityViewModels()
 
 
     // Dodajte instancu FirebaseAuthController-a
     private lateinit var authController: FirebaseAuthController
+
     init {
         val db = FirebaseFirestore.getInstance()
         authController = FirebaseAuthController(db)
     }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -47,15 +49,12 @@ class LoginFragment : Fragment(), AuthListener {
         binding.buttonLogin.setOnClickListener {
             loginUser()
         }
-        binding.buttonRegister.setOnClickListener{
+        binding.buttonRegister.setOnClickListener {
             findNavController().navigate(R.id.action_loginFragment_to_registrationFragment)
         }
 
         binding.buttonPlay.setOnClickListener {
-           //findNavController().navigate(R.id.action_loginFragment_to_koZnaZnaGame)
-            //findNavController().navigate(R.id.action_loginFragment_to_mojBroj)
-            //findNavController().navigate(R.id.action_loginFragment_to_korakPoKorak)
-            findNavController().navigate(R.id.action_loginFragment_to_skockoGame)
+            findNavController().navigate(R.id.action_loginFragment_to_singlePlayer)
         }
     }
 
@@ -65,12 +64,14 @@ class LoginFragment : Fragment(), AuthListener {
 
 
         // TODO Prosiriti funkciju singIn da moze primiti i username a ne samo email
-        if(email.isNotEmpty() && password.isNotEmpty())
+        if (email.isNotEmpty() && password.isNotEmpty())
             authController.signIn(email, password, this)
         else
-            Toast.makeText(context, "Morate unijeti email/username i password!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Morate unijeti email/username i password!", Toast.LENGTH_SHORT)
+                .show()
 
     }
+
     override fun onAuthSuccess() {
         // Handle login success (navigate to another fragment, show a success message, etc.)
         findNavController().navigate(R.id.action_loginFragment_to_profileFragment)
@@ -81,6 +82,7 @@ class LoginFragment : Fragment(), AuthListener {
         // Handle login failure (show an error message, etc.)
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
