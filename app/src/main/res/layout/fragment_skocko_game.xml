@@ -129,7 +129,6 @@
             />
 
         <LinearLayout
-            xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -174,6 +173,13 @@
             android:textAlignment="center"
             android:text="Vasi bodovi">
         </TextView>
+        <Button
+            android:id="@+id/finishButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="64dp"
+            android:text="Finish" />
     </LinearLayout>
 
     <LinearLayout

@@ -2,17 +2,17 @@ package com.example.igricaslagalica.view
 
 import android.os.Bundle
 import android.os.CountDownTimer
-import android.text.InputType
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import com.example.igricaslagalica.R
 import com.example.igricaslagalica.SharedViewModel
-import com.example.igricaslagalica.data.PitanjaKoZnaZna
-import com.example.igricaslagalica.data.PitanjaKorakPoKorak
+import com.example.igricaslagalica.data.StaticData
+import com.example.igricaslagalica.model.KorakPoKorak
 import com.example.igricaslagalica.databinding.FragmentKorakPoKorakBinding
 
 class KorakPoKorak : Fragment() {
@@ -23,7 +23,7 @@ class KorakPoKorak : Fragment() {
     private lateinit var timer: CountDownTimer
     private var remainingTime: Long = 0
     private var brojPojma = 0
-    private lateinit var pitanje: PitanjaKorakPoKorak
+    private lateinit var pitanje: KorakPoKorak
     private var pojmoviTextView = ArrayList<TextView>()
 
     override fun onCreateView(
@@ -36,7 +36,7 @@ class KorakPoKorak : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        pitanje = PitanjaKorakPoKorak.dajPitanja()[0]
+        pitanje = StaticData.dajPitanjeKorakPoKorak()[0]
         pojmoviTextView.add(binding.pojmoviView.findViewById(R.id.pojam1TextView))
         pojmoviTextView.add(binding.pojmoviView.findViewById(R.id.pojam2TextView))
         pojmoviTextView.add(binding.pojmoviView.findViewById(R.id.pojam3TextView))
@@ -48,18 +48,21 @@ class KorakPoKorak : Fragment() {
 
         startGame()
         binding.provjeriButton.setOnClickListener {
+
+            if (binding.provjeriButton.text == "Finish")
+                findNavController().navigate(R.id.action_korakPoKorak_to_singlePlayer)
+
             var odgovor = binding.odgovorEditText.text.toString()
             odgovor = odgovor.trim()
 
-            if(odgovor.equals(pitanje.odgovor, ignoreCase = true))
-            {
+            if (odgovor.equals(pitanje.odgovor, ignoreCase = true)) {
+                binding.provjeriButton.text = "Finish"
                 timer.cancel()
                 val brojBodova = 20 - ((brojPojma - 1) * 2)
                 pitanje.bodovi = brojBodova
-                binding.timerTextView.text  = "$brojBodova bodova"
+                binding.timerTextView.text = "$brojBodova bodova"
                 setAndShowCorrectAnswer()
-            }
-            else
+            } else
                 binding.odgovorEditText.setText("")
         }
     }
@@ -90,20 +93,18 @@ class KorakPoKorak : Fragment() {
             startTimer()
             pojmoviTextView[brojPojma].text = pitanje.pojmovi[brojPojma]
             brojPojma++
-        }
-        else
+        } else
             endGame()
 
     }
-    private fun endGame()
-    {
-        binding.timerTextView.text =
-            String.format("%2d s: %s ms", 0, 0)
+
+    private fun endGame() {
+        binding.timerTextView.text = "0 bodova"
         setAndShowCorrectAnswer()
-        // TODO: Sljedeca igrica ili nesto tako
+        binding.provjeriButton.text = "Finish"
     }
-    private fun setAndShowCorrectAnswer()
-    {
+
+    private fun setAndShowCorrectAnswer() {
         binding.odgovorEditText.visibility = View.GONE
         binding.tacanOdgovorCardView.visibility = View.VISIBLE
         binding.tacanOdgovorTextView.text = pitanje.odgovor

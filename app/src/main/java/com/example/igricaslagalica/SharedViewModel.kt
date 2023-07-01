@@ -1,18 +1,19 @@
 package com.example.igricaslagalica
+
 import androidx.lifecycle.ViewModel
-import com.example.igricaslagalica.data.PitanjaKoZnaZna
+import com.example.igricaslagalica.model.KoZnaZna
 
 class SharedViewModel : ViewModel() {
-    private lateinit var questionList: MutableList<PitanjaKoZnaZna>
+    private var trenutniBodovi = 0
+    private var igricaBodovi = 0
+    private lateinit var koZnaZnaQuestionList: MutableList<KoZnaZna>
 
-    fun setQuestionList(questions: List<PitanjaKoZnaZna>)
-    {
-        questionList = questions as MutableList<PitanjaKoZnaZna>
+    fun setQuestionList(questions: List<KoZnaZna>) {
+        koZnaZnaQuestionList = questions as MutableList<KoZnaZna>
     }
 
-    fun getQuestionList():MutableList<PitanjaKoZnaZna>
-    {
-        return questionList
+    fun getQuestionList(): MutableList<KoZnaZna> {
+        return koZnaZnaQuestionList
     }
 
     // Dodajte ostale potrebne metode i podatke u skladu sa vašim zahtevima

@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import com.example.igricaslagalica.R
 import com.example.igricaslagalica.SharedViewModel
 import com.example.igricaslagalica.databinding.FragmentMojBrojBinding
@@ -68,6 +69,10 @@ class MojBroj : Fragment() {
         binding.calculateAndFinishButton.setOnClickListener {
             izracunajDobijeniIzraz()
             stopGame()
+            if(binding.calculateAndFinishButton.text == "Finish")
+                findNavController().navigate(R.id.action_mojBroj_to_singlePlayer)
+
+            binding.calculateAndFinishButton.text = "Finish"
         }
     }
     private fun generateTrazeniBroj() {

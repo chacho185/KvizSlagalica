@@ -10,11 +10,12 @@ import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import com.example.igricaslagalica.R
 import com.example.igricaslagalica.SharedViewModel
-import com.example.igricaslagalica.data.PitanjaKoZnaZna
-import com.example.igricaslagalica.data.dajPitanja
+import com.example.igricaslagalica.data.StaticData
 import com.example.igricaslagalica.databinding.FragmentKoZnaZnaGameBinding
+import com.example.igricaslagalica.model.KoZnaZna
 
 class KoZnaZnaGame : Fragment() {
     private var _binding: FragmentKoZnaZnaGameBinding? = null
@@ -29,7 +30,7 @@ class KoZnaZnaGame : Fragment() {
     private lateinit var option3RadioButton: RadioButton
     private lateinit var option4RadioButton: RadioButton
 
-    private lateinit var questionList: List<PitanjaKoZnaZna>
+    private lateinit var questionList: List<KoZnaZna>
     private var currentQuestionIndex: Int = 0
     private lateinit var timer: CountDownTimer
     private var totalScore: Int = 0
@@ -66,7 +67,7 @@ class KoZnaZnaGame : Fragment() {
         binding.finishButton.setOnClickListener {
             sharedViewModel.setQuestionList(questionList)
 
-            // TODO: sljedeca igra
+            findNavController().navigate(R.id.action_koZnaZnaGame_to_singlePlayer)
         }
         showNextQuestion()
 
@@ -121,9 +122,9 @@ class KoZnaZnaGame : Fragment() {
         optionsRadioGroup.clearCheck()
     }
 
-    private fun generateQuestions(): List<PitanjaKoZnaZna> {
-        val randomQuestions = mutableListOf<PitanjaKoZnaZna>()
-        val questions = dajPitanja().shuffled()
+    private fun generateQuestions(): List<KoZnaZna> {
+        val randomQuestions = mutableListOf<KoZnaZna>()
+        val questions = StaticData.dajPitanjaKoZnaZna().shuffled()
         for (i in 0 until 5) {
             randomQuestions.add(questions[i])
         }
