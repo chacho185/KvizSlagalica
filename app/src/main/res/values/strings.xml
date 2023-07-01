@@ -6,6 +6,6 @@
     <string name="registration_fragment_label">Registration</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello user </string>
+
+
 </resources>

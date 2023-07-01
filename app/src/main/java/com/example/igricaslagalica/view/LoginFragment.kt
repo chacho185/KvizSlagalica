@@ -6,10 +6,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.activityViewModels
 import com.example.igricaslagalica.controller.auth.AuthListener
 import com.example.igricaslagalica.controller.auth.FirebaseAuthController
 import androidx.navigation.fragment.findNavController
+import com.example.igricaslagalica.MainActivity
 import com.example.igricaslagalica.R
+import com.example.igricaslagalica.SharedViewModel
 import com.example.igricaslagalica.databinding.FragmentLoginBinding
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -20,13 +23,17 @@ class LoginFragment : Fragment(), AuthListener {
 
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
+    private val sharedViewModel: SharedViewModel by activityViewModels()
+
 
     // Dodajte instancu FirebaseAuthController-a
     private lateinit var authController: FirebaseAuthController
+
     init {
         val db = FirebaseFirestore.getInstance()
         authController = FirebaseAuthController(db)
     }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -42,12 +49,12 @@ class LoginFragment : Fragment(), AuthListener {
         binding.buttonLogin.setOnClickListener {
             loginUser()
         }
-        binding.buttonRegister.setOnClickListener{
+        binding.buttonRegister.setOnClickListener {
             findNavController().navigate(R.id.action_loginFragment_to_registrationFragment)
         }
 
         binding.buttonPlay.setOnClickListener {
-//            findNavController().navigate(R.id.)
+            findNavController().navigate(R.id.action_loginFragment_to_singlePlayer)
         }
     }
 
@@ -70,6 +77,7 @@ class LoginFragment : Fragment(), AuthListener {
                 .show()
         }
     }
+
     override fun onAuthSuccess() {
         // Handle login success (navigate to another fragment, show a success message, etc.)
         findNavController().navigate(R.id.action_loginFragment_to_profileFragment)
@@ -80,6 +88,7 @@ class LoginFragment : Fragment(), AuthListener {
         // Handle login failure (show an error message, etc.)
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
