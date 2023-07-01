@@ -44,6 +44,9 @@
         <action
             android:id="@+id/action_loginFragment_to_korakPoKorak"
             app:destination="@id/korakPoKorak" />
+        <action
+            android:id="@+id/action_loginFragment_to_skockoGame"
+            app:destination="@id/skockoGame" />
     </fragment>
     <fragment
         android:id="@+id/registrationFragment"
@@ -69,4 +72,9 @@
         android:name="com.example.igricaslagalica.view.KorakPoKorak"
         android:label="fragment_korak_po_korak"
         tools:layout="@layout/fragment_korak_po_korak" />
+    <fragment
+        android:id="@+id/skockoGame"
+        android:name="com.example.igricaslagalica.view.SkockoGame"
+        android:label="fragment_skocko_game"
+        tools:layout="@layout/fragment_skocko_game" />
 </navigation>
