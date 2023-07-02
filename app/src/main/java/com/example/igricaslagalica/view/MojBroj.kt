@@ -35,6 +35,8 @@ class MojBroj : Fragment() {
     private lateinit var number5TextView: TextView
     private lateinit var number6TextView: TextView
     private lateinit var resultString: TextView
+    private var gameId: String? = null
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -55,6 +57,8 @@ class MojBroj : Fragment() {
         resultString = binding.resultTextView
 
         startTimer()
+        gameId = arguments?.getString("gameId").toString()
+
         binding.stopButton.setOnClickListener {
             if(!daLiJeIgraPocela)
                 generateTrazeniBroj()
@@ -70,7 +74,13 @@ class MojBroj : Fragment() {
             izracunajDobijeniIzraz()
             stopGame()
             if(binding.calculateAndFinishButton.text == "Finish")
-                findNavController().navigate(R.id.action_mojBroj_to_singlePlayer)
+                if(gameId != null) {
+//                    val bundle = bundleOf("gameId" to gameId)
+                    findNavController().navigate(R.id.action_loginFragment_to_profileFragment)
+
+                } else {
+                    findNavController().navigate(R.id.action_mojBroj_to_singlePlayer)
+                }
 
             binding.calculateAndFinishButton.text = "Finish"
         }

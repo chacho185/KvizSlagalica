@@ -56,6 +56,22 @@ class FirebaseGameController() {
                 }
             }
     }
+    fun getGame(gameId: String, callback: (Game?) -> Unit) {
+        db.collection("games").document(gameId).get()
+            .addOnSuccessListener { documentSnapshot ->
+                val game = documentSnapshot.toObject(Game::class.java)
+                Log.w(TAG,"Game objekt preuzet $game}")
+
+                if (game != null) {
+                    Log.w(TAG,"Game objekt preuzet $game lista ${game.questionInfo.size}")
+                }
+                callback(game)
+                // callback(documentSnapshot.toObject(Game::class.java))
+            }
+            .addOnFailureListener {
+                callback(null)
+            }
+    }
     fun createGame(playerId: String, gameId: String, onQuestionsFetched: (String) -> Unit) {
         val gameRef = db.collection("games").document(gameId)
 

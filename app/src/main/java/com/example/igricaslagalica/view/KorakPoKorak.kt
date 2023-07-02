@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.example.igricaslagalica.R
@@ -25,7 +26,7 @@ class KorakPoKorak : Fragment() {
     private var brojPojma = 0
     private lateinit var pitanje: KorakPoKorak
     private var pojmoviTextView = ArrayList<TextView>()
-
+    private var gameId: String = ""
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -45,12 +46,19 @@ class KorakPoKorak : Fragment() {
         pojmoviTextView.add(binding.pojmoviView.findViewById(R.id.pojam6TextView))
         pojmoviTextView.add(binding.pojmoviView.findViewById(R.id.pojam7TextView))
 
+        gameId = arguments?.getString("gameId").toString()
 
         startGame()
+
         binding.provjeriButton.setOnClickListener {
 
             if (binding.provjeriButton.text == "Finish")
-                findNavController().navigate(R.id.action_korakPoKorak_to_singlePlayer)
+                if(gameId != null){
+                    val bundle = bundleOf("gameId" to gameId)
+                    findNavController().navigate(R.id.action_singlePlayer_to_online_mojBroj, bundle)
+                } else {
+                    findNavController().navigate(R.id.action_korakPoKorak_to_singlePlayer)
+                }
 
             var odgovor = binding.odgovorEditText.text.toString()
             odgovor = odgovor.trim()
@@ -65,6 +73,7 @@ class KorakPoKorak : Fragment() {
             } else
                 binding.odgovorEditText.setText("")
         }
+
     }
 
     private fun startGame() {
