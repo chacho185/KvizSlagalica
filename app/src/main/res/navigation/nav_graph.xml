@@ -13,10 +13,10 @@
         <action
             android:id="@+id/action_profileFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
-        <action android:id="@+id/action_profileFragment_to_playOnline"
+        <action android:id="@+id/action_profileFragment_to_online_spojnice"
             app:destination="@+id/fragment_gameone"/>
         <action
-            android:id="@+id/action_loginFragment_to_multiPlayer"
+            android:id="@+id/action_loginFragment_to_multiPlayer_kkz"
             app:destination="@id/koZnaZnaGame" />
         <action
             android:id="@+id/action_loginFragment_to_multiPlayerAsocijacije"
@@ -28,6 +28,11 @@
         android:id="@+id/fragment_gameone"
         android:name="com.example.igricaslagalica.view.GameOneFragment"
         android:label="Game One"  >
+
+        <action android:id="@+id/action_profileFragment_to_online_spojnice"
+            app:destination="@+id/fragment_gameone"/>
+        <action android:id="@+id/action_loginFragment_to_multiPlayerAsocijacije"
+            app:destination="@+id/asocijacijaGame"/>
 
     </fragment>
     <fragment
@@ -72,6 +77,9 @@
         <action
             android:id="@+id/action_koZnaZnaGame_to_singlePlayer"
             app:destination="@id/singlePlayer" />
+
+        <action android:id="@+id/action_profileFragment_to_online_spojnice"
+            app:destination="@+id/fragment_gameone"/>
     </fragment>
     <fragment
         android:id="@+id/mojBroj"
@@ -81,6 +89,9 @@
         <action
             android:id="@+id/action_mojBroj_to_singlePlayer"
             app:destination="@id/singlePlayer" />
+        <action
+            android:id="@+id/action_loginFragment_to_profileFragment"
+            app:destination="@id/profileFragment" />
     </fragment>
     <fragment
         android:id="@+id/korakPoKorak"
@@ -90,6 +101,9 @@
         <action
             android:id="@+id/action_korakPoKorak_to_singlePlayer"
             app:destination="@id/singlePlayer" />
+        <action
+            android:id="@+id/action_singlePlayer_to_online_mojBroj"
+            app:destination="@id/mojBroj" />
     </fragment>
     <fragment
         android:id="@+id/skockoGame"
@@ -99,6 +113,9 @@
         <action
             android:id="@+id/action_skockoGame_to_singlePlayer"
             app:destination="@id/singlePlayer" />
+        <action
+            android:id="@+id/action_singlePlayer_to_online_korakpokorak"
+            app:destination="@id/korakPoKorak" />
     </fragment>
     <fragment
         android:id="@+id/singlePlayer"
@@ -136,5 +153,9 @@
         <action
             android:id="@+id/action_asocijacijaGame_to_singlePlayer"
             app:destination="@id/singlePlayer" />
+        <action
+            android:id="@+id/action_singlePlayer_to_online_skockoGame"
+            app:destination="@id/skockoGame" />
+
     </fragment>
 </navigation>

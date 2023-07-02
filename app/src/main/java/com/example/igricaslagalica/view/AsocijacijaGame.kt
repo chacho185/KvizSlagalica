@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -184,6 +185,9 @@ class AsocijacijaGame : Fragment() {
         binding.finishButton.setOnClickListener {
             if (gameId != null) {
               //  switchTurnAndCheckGameEnd(currentGame, gameId)
+                val bundle = bundleOf("gameId" to gameId)
+                findNavController().navigate(R.id.action_singlePlayer_to_online_skockoGame, bundle)
+
             } else {
                 findNavController().navigate(R.id.action_asocijacijaGame_to_singlePlayer)
             }
@@ -232,20 +236,25 @@ class AsocijacijaGame : Fragment() {
         if (isPlayer1Turn) {
             if (isOdgovorTocan) {
                 player1Score += 7 + (6 * neodgovorenihAsocijacija) - oduzmiBodova
+                currentGame.currentTurn = currentGame.player2.toString()
+                // Spremi rezultate u bazu
+                currentGame.id?.let {
+                    associjacijaController.saveResultPlayer1(it, player1Score, currentGame.currentTurn)
+                }
             }
         } else {
             if (isOdgovorTocan) {
                 Log.w(TAG,"bodovi tacni 2 $bodovi")
                 player2Score += 7 + (6 * neodgovorenihAsocijacija) - oduzmiBodova
+                currentGame.currentTurn = currentGame.player1.toString()
+                // Spremi rezultate u bazu
+                currentGame.id?.let {
+                    associjacijaController.saveResultPlayer2(it, player1Score, currentGame.currentTurn)
+                }
             }
         }
         // Ažuriraj Game objekt s novim potezom
         Log.w(TAG,"bodovi tacni 2 $bodovi ++ $player1Score iii $player2Score")
-        currentGame.currentTurn = currentGame.player2.toString()
-        // Spremi rezultate u bazu
-        currentGame.id?.let {
-            associjacijaController.saveResultToDatabase(it, player1Score, player2Score, currentGame.currentTurn)
-        }
 
 
 

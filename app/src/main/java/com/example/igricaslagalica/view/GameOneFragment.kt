@@ -12,7 +12,9 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.igricaslagalica.R
@@ -194,6 +196,16 @@ class GameOneFragment : Fragment() {
                 gameController.endRound(gameId)
                 getCurrentPlayer(game.currentTurn, game.currentRound)
                 switchPlayer()
+                if(game.currentRound == 2 && game.currentTurn == game.player1 ){
+                    val bundle = bundleOf("gameId" to gameId)
+                    findNavController().navigate(R.id.action_loginFragment_to_multiPlayerAsocijacije, bundle)
+
+                }
+                if(game.currentRound == 1 && game.currentTurn != game.player1 ){
+                    val bundle = bundleOf("gameId" to gameId)
+                    findNavController().navigate(R.id.action_loginFragment_to_multiPlayerAsocijacije, bundle)
+
+                }
             } else {
                 // Handle error
             }

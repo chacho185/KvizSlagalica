@@ -42,5 +42,20 @@ class AsocijacijeGameController {
             }
         }
     }
-
+    fun saveResultPlayer1(gameId: String, player1Score: Int,  nextTurn: String) {
+        updateGameField(gameId, "player1Score", player1Score) { success1 ->
+            if (success1) {
+                updateGameField(gameId, "currentTurn", nextTurn) { success3 ->
+                }
+                }
+            }
+    }
+    fun saveResultPlayer2(gameId: String, player2Score: Int,  nextTurn: String) {
+                updateGameField(gameId, "player2Score", player2Score) { success2 ->
+                    if(success2){
+                    updateGameField(gameId, "currentTurn", nextTurn) { success3 ->
+                    }
+            }
+        }
+    }
 }

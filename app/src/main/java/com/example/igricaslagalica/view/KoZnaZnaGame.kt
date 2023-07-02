@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.TextView
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -96,12 +97,17 @@ class KoZnaZnaGame : Fragment() {
             }
             showNextQuestion()
         } else {
-
+            binding.finishButton.text = "Continue"
             questionList = generateQuestions(gameId)
             binding.nextButton.setOnClickListener {
                 timer.cancel()
                 checkAnswerMultiPlayer()
                 showNextQuestionMultiPlayer(questionList)
+            }
+            binding.finishButton.setOnClickListener {
+                val bundle = bundleOf("gameId" to gameId)
+
+                findNavController().navigate(R.id.action_profileFragment_to_online_spojnice, bundle)
             }
         }
 
