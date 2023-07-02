@@ -26,6 +26,15 @@
         android:label="Game One"  >
 
     </fragment>
+    <fragment
+        android:id="@+id/spojnica_single"
+        android:name="com.example.igricaslagalica.view.SpojnicaSingleFragment"
+        android:label="Game One"  >
+
+        <action
+            android:id="@+id/action_singlePlayer_to_spojnice"
+            app:destination="@id/singlePlayer" />
+    </fragment>
 
     <fragment
         android:id="@+id/loginFragment"
@@ -109,6 +118,11 @@
         <action
             android:id="@+id/action_singlePlayer_to_asocijacijaGame"
             app:destination="@id/asocijacijaGame" />
+        <action
+            android:id="@+id/action_singlePlayer_to_spojnice"
+            app:destination="@id/spojnica_single" />
+
+
     </fragment>
     <fragment
         android:id="@+id/asocijacijaGame"

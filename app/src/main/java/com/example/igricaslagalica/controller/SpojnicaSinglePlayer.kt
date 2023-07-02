@@ -7,13 +7,7 @@ import com.example.igricaslagalica.model.Question
 import com.example.igricaslagalica.model.Round
 import com.google.firebase.firestore.FirebaseFirestore
 
-enum class GameState {
-    ROUND_ONE_PLAYER_ONE,
-    ROUND_ONE_PLAYER_TWO,
-    ROUND_TWO_PLAYER_ONE,
-    ROUND_TWO_PLAYER_TWO
-    // Add more states as needed
-}
+
 
 class SpojnicaSinglePlayer {
 

@@ -39,14 +39,14 @@ class SpojnicaSingleFragment : Fragment() {
         super.onCreate(savedInstanceState)
 
         // Initialize the game controller
-        gameController = SpojnicaGameController()
+        gameController = SpojnicaSinglePlayer()
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_gameone, container, false)
+        val view = inflater.inflate(R.layout.spojnica_single, container, false)
 
         // Initialize the RecyclerViews
         questionsRecyclerView = view.findViewById(R.id.questionsRecyclerView)
