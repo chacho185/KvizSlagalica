@@ -56,15 +56,25 @@ class KoZnaZnaController {
                     callback(null)
                 }
         }
-    fun saveAnswerForQuestion(gameId: String, questionIndex: Int, player1AnswerTime: Long, player1Answered:Int, player2Answered: Int, player2AnswerTime: Long) {
+    fun saveAnswerForPlayer1(gameId: String, questionIndex: Int, player1AnswerTime: Long, player1Answered:Int) {
         val gameRef = db.collection("games").document(gameId)
 
         getGame(gameId) { game ->
             if (game != null) {
-                game.koZnaZnaQuestions[questionIndex].player1AnswerTime = player1AnswerTime
-                game.koZnaZnaQuestions[questionIndex].player2AnswerTime = player2AnswerTime
                 game.koZnaZnaQuestions[questionIndex].player1Answered = player1Answered
+                game.koZnaZnaQuestions[questionIndex].player1AnswerTime = player1AnswerTime
+                gameRef.set(game, SetOptions.merge())
+            }
+        }
+
+    }
+    fun saveAnswerForPlayer2(gameId: String, questionIndex: Int, player2Answered: Int, player2AnswerTime: Long) {
+        val gameRef = db.collection("games").document(gameId)
+
+        getGame(gameId) { game ->
+            if (game != null) {
                 game.koZnaZnaQuestions[questionIndex].player2Answered = player2Answered
+                game.koZnaZnaQuestions[questionIndex].player2AnswerTime = player2AnswerTime
                 gameRef.set(game, SetOptions.merge())
             }
         }

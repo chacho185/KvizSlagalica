@@ -242,13 +242,15 @@ class KoZnaZnaGame : Fragment() {
         val currentPlayerId = sharedPreferences?.getString("currentPlayerId", null)
         var answerTimePlayerOne : Long = 0
         var answerTimePlayerTwo: Long = 0
-
+        Log.w(TAG, "test $currentPlayerId")
         if (currentPlayerId == playerId1) {
             player1Answer = selectedAnswerIndex
             answerTimePlayerOne = 5000 - remainingTime
 
         } else if (currentPlayerId == playerId2) {
             // Igrač 2 je kliknuo
+            Log.w(TAG, "test player klik $currentPlayerId")
+
             player2Answer = selectedAnswerIndex
             answerTimePlayerTwo = 5000 - remainingTime
 
@@ -267,7 +269,18 @@ class KoZnaZnaGame : Fragment() {
 //                val answerTime = 5000 - remainingTime // Primjer: Pretpostavljamo da je ukupno vrijeme 5000 ms
                 val questionIndex = currentQuestionIndex - 1
 //                checkAndShowWinner()
-                gameController.saveAnswerForQuestion(gameId,questionIndex ,answerTimePlayerOne, player1Answer, player2Answer,answerTimePlayerTwo)
+                if (currentPlayerId == playerId1) {
+                    player1Answer = selectedAnswerIndex
+                    answerTimePlayerOne = 5000 - remainingTime
+                    gameController.saveAnswerForPlayer1(gameId,questionIndex, answerTimePlayerOne, player1Answer )
+                } else if (currentPlayerId == playerId2) {
+                    // Igrač 2 je kliknuo
+                    player2Answer = selectedAnswerIndex
+                    answerTimePlayerTwo = 5000 - remainingTime
+                    gameController.saveAnswerForPlayer2(gameId,questionIndex , player2Answer,answerTimePlayerTwo)
+
+                }
+//                gameController.saveAnswerForQuestion(gameId,questionIndex ,answerTimePlayerOne, player1Answer, player2Answer,answerTimePlayerTwo)
 
             }
         }
@@ -307,18 +320,17 @@ class KoZnaZnaGame : Fragment() {
                                    player1Score += 10
                                    player2Score += 10
                                }
-                           } else {
-                               // Barem jedan igrač je netočno odgovorio
-                               if (player1Answer == element.correctAnswer) {
+                           } else if (player1Answer == element.correctAnswer) {
                                    // Samo igrač 1 je točno odgovorio
                                    player1Score += 10
-                                   player2Score -= 5
+                                   player2Score -=5
+
                                } else if (player2Answer == element.correctAnswer) {
                                    // Samo igrač 2 je točno odgovorio
                                    player2Score += 10
-                                   player1Score -= 5
+                                   player1Score -=5
                                }
-                           }
+
                        }
 
                        Log.d(TAG, "questions from Player 1 Score: $player1Score")
