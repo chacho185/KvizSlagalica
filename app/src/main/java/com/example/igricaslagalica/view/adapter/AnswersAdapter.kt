@@ -21,7 +21,6 @@ private var selectedPosition = -1
             answerText.text = answer.answer
 
             itemView.setOnClickListener {
-         //       onAnswerSelected(answer)
                 onAnswerSelected(adapterPosition)
 
                 // If a different item was selected, refresh the old item (to change its color back)
@@ -40,10 +39,7 @@ private var selectedPosition = -1
             if (selectedPosition != position) {
                 itemView.setBackgroundColor(Color.WHITE) // replace with the original color
             }
-            // Change the background color if the question is answered
-            if (answer.answered) {
-                itemView.setBackgroundColor(Color.BLUE)
-            }
+
         }
     }
 
