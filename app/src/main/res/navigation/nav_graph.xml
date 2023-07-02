@@ -18,6 +18,10 @@
         <action
             android:id="@+id/action_loginFragment_to_multiPlayer"
             app:destination="@id/koZnaZnaGame" />
+        <action
+            android:id="@+id/action_loginFragment_to_multiPlayerAsocijacije"
+            app:destination="@id/asocijacijaGame" />
+
 
     </fragment>
     <fragment
