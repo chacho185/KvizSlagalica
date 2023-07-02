@@ -31,8 +31,7 @@ class SinglePlayer : Fragment() {
             findNavController().navigate(R.id.action_singlePlayer_to_loginFragment)
         }
         binding.buttonAsocijacije.setOnClickListener {
-            // TODO: dodati navigaciju na ovu igru
-
+            findNavController().navigate(R.id.action_singlePlayer_to_asocijacijaGame)
         }
         binding.buttonSkocko.setOnClickListener {
             findNavController().navigate(R.id.action_singlePlayer_to_skockoGame)
