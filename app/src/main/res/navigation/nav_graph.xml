@@ -15,6 +15,9 @@
             app:destination="@id/loginFragment" />
         <action android:id="@+id/action_profileFragment_to_playOnline"
             app:destination="@+id/fragment_gameone"/>
+        <action
+            android:id="@+id/action_loginFragment_to_multiPlayer"
+            app:destination="@id/koZnaZnaGame" />
 
     </fragment>
     <fragment
