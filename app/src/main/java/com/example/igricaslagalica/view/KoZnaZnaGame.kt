@@ -146,8 +146,11 @@ class KoZnaZnaGame : Fragment() {
             currentQuestionIndex++
             startTimer()
         } else {
-            checkAndShowWinner()
-            endGame()
+
+                endGame()
+
+
+
         }
     }
 
@@ -156,8 +159,8 @@ class KoZnaZnaGame : Fragment() {
         val currentQuestion = questionList[currentQuestionIndex - 1]
         val selectedAnswerIndex = getSelectedAnswerIndex()
 
-        questionList[currentQuestionIndex - 1].userAnswer = selectedAnswerIndex
-        questionList[currentQuestionIndex - 1].remainingTime = remainingTime
+        questionList[currentQuestionIndex - 1].player1Answered = selectedAnswerIndex
+        questionList[currentQuestionIndex - 1].player1AnswerTime = remainingTime
         if (selectedAnswerIndex == currentQuestion.correctAnswer) {
             totalScore += 10
         } else {
@@ -224,6 +227,7 @@ class KoZnaZnaGame : Fragment() {
             currentQuestionIndex++
             startTimer()
         } else {
+           checkAndShowWinner()
             endGame()
         }
     }
@@ -231,8 +235,8 @@ class KoZnaZnaGame : Fragment() {
         val currentQuestion = questionList[currentQuestionIndex - 1]
         val selectedAnswerIndex = getSelectedAnswerIndex()
 
-        currentQuestion.userAnswer = selectedAnswerIndex
-        currentQuestion.remainingTime = remainingTime
+//        currentQuestion.userAnswer = selectedAnswerIndex
+//        currentQuestion.remainingTime = remainingTime
 
         val sharedPreferences = activity?.getSharedPreferences("MyApp", Context.MODE_PRIVATE)
         val currentPlayerId = sharedPreferences?.getString("currentPlayerId", null)
@@ -240,7 +244,6 @@ class KoZnaZnaGame : Fragment() {
         var answerTimePlayerTwo: Long = 0
 
         if (currentPlayerId == playerId1) {
-//            player1Answers[currentQuestionIndex] = selectedAnswerIndex
             player1Answer = selectedAnswerIndex
             answerTimePlayerOne = 5000 - remainingTime
 
@@ -286,8 +289,8 @@ class KoZnaZnaGame : Fragment() {
                        var player2Score = 0
 
                        for (element in questionList) {
-                           val player1Answer = element.userAnswer
-                           val player2Answer = element.userAnswer
+                           val player1Answer = element.player1Answered
+                           val player2Answer = element.player2Answered
                            player1Time = element.player1AnswerTime
                            player2Time = element.player2AnswerTime
 
@@ -318,8 +321,9 @@ class KoZnaZnaGame : Fragment() {
                            }
                        }
 
-                       Log.d(TAG, "Player 1 Score: $player1Score")
-                       Log.d(TAG, "Player 2 Score: $player2Score")
+                       Log.d(TAG, "questions from Player 1 Score: $player1Score")
+                       Log.d(TAG, "questions from Player 2 Score: $player2Score")
+                       textViewScore.text = "Player1 score: $player1Score \n Player2 score: $player2Score"
 
                        if (gameId != null) {
                            gameController.saveResultToDatabase(gameId, player1Score, player2Score)
@@ -332,57 +336,8 @@ class KoZnaZnaGame : Fragment() {
                // Greška pri preuzimanju igre iz baze podataka
            }
            }
-   }
-//    private fun checkAndShowWinner() {
-//        if (player1Answer != -1 || player2Answer != -1) {
-//            // Oba igrača su odgovorila
-//            if (player1Answer == questionList[currentQuestionIndex - 1].correctAnswer &&
-//                player2Answer == questionList[currentQuestionIndex - 1].correctAnswer
-//            ) {
-//                // Oba igrača su točno odgovorila
-//                if (player1Time < player2Time) {
-//                    // Igrač 1 je prvi odgovorio
-//                    player1Score += 10
-//                    Log.d(TAG, "Winner: Player 1")
-//                    Log.d(TAG, "Answer Status: Both Correct, Player 1 First")
-//                } else if (player2Time < player1Time) {
-//                    // Igrač 2 je prvi odgovorio
-//                    player2Score += 10
-//                    Log.d(TAG, "Winner: Player 2")
-//                    Log.d(TAG, "Answer Status: Both Correct, Player 2 First")
-//                } else {
-//                    // Igrači su odgovorili istovremeno
-//                    player1Score +=10
-//                    player2Score +=10
-//                    Log.d(TAG, "Winner: Tie")
-//                    Log.d(TAG, "Answer Status: Both Correct, Tie")
-//                }
-//            } else {
-//                // Barem jedan igrač je netočno odgovorio
-//                if (player1Answer == questionList[currentQuestionIndex - 1].correctAnswer) {
-//                    // Samo igrač 1 je točno odgovorio
-//                    player1Score += 10
-//                    player2Score -= 5
-//                    Log.d(TAG, "Winner: Player 1")
-//                    Log.d(TAG, "Answer Status: Player 1 Correct, Player 2 Incorrect")
-//                } else if (player2Answer == questionList[currentQuestionIndex - 1].correctAnswer) {
-//                    // Samo igrač 2 je točno odgovorio
-//                    player2Score += 10
-//                    player1Score -= 5
-//                    Log.d(TAG, "Winner: Player 2")
-//                    Log.d(TAG, "Answer Status: Player 2 Correct, Player 1 Incorrect")
-//                }
-//            }
-//
-//        }
-//        Log.d(TAG, "Questions from bodovi $player1Score  ++ $player2Score")
-//
-//        val gameId = arguments?.getString("gameId")
-//        if (gameId != null) {
-//            gameController.saveResultToDatabase(gameId, player1Score, player2Score)
-//        }
-//    }
 
+   }
 
     private fun startTimer() {
         timer = object : CountDownTimer(5000, 10) {
@@ -409,7 +364,12 @@ class KoZnaZnaGame : Fragment() {
         binding.nextButton.visibility = View.GONE
         binding.finishButton.visibility = View.VISIBLE
         binding.timerTextView.visibility = View.GONE
-        updateScore()
+        if(isMultiplayer) {
+          //  textViewScore.text = "Player1 score: $player1Score \n Player2 score: $player2Score"
+        } else {
+            updateScore()
+        }
+
     }
 
     private fun updateScore() {

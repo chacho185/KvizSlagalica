@@ -77,8 +77,10 @@ class FirebaseGameController() {
                             questionText = it.questionText,
                             options = it.options,
                             correctAnswer = it.correctAnswer,
-                            userAnswer = it.userAnswer,
-                            remainingTime = it.remainingTime
+                            player1Answered = it.player1Answered,
+                            player1AnswerTime = it.player1AnswerTime,
+                            player2Answered = it.player2Answered,
+                            player2AnswerTime =  it.player2AnswerTime
                         )
                     }
                     game.koZnaZnaQuestions = gameQuestions
@@ -158,8 +160,10 @@ class FirebaseGameController() {
                     questionText = it.questionText,
                     options = it.options,
                     correctAnswer = it.correctAnswer,
-                    userAnswer = it.userAnswer,
-                    remainingTime = it.remainingTime
+                    player1Answered = it.player1Answered,
+                    player1AnswerTime = it.player1AnswerTime,
+                    player2Answered = it.player2Answered,
+                    player2AnswerTime =  it.player2AnswerTime
                 )
             } ?: listOf()
         }
