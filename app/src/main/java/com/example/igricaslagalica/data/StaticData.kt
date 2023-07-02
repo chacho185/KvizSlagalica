@@ -1,5 +1,7 @@
 package com.example.igricaslagalica.data
 
+import com.example.igricaslagalica.model.Asocijacija
+import com.example.igricaslagalica.model.Asocijacije
 import com.example.igricaslagalica.model.KoZnaZna
 import com.example.igricaslagalica.model.KorakPoKorak
 
@@ -183,6 +185,32 @@ class StaticData() {
             )
         )
 
+        val asocijacijeData = Asocijacije(
+            asocijacije = listOf(
+                Asocijacija(
+                    asocijacijaList = listOf("Pizza", "Spaghetti", "Lasagna", "Ravioli"),
+                    asocijacijaRjesenje = "Talijanska"
+                ),
+                Asocijacija(
+                    asocijacijaList = listOf("Sushi", "Ramen", "Tempura", "Teriyaki"),
+                    asocijacijaRjesenje = "Japanska"
+                ),
+                Asocijacija(
+                    asocijacijaList = listOf("Tortilla", "Nachos", "Burrito", "Enchiladas"),
+                    asocijacijaRjesenje = "Meksička"
+                ),
+                Asocijacija(
+                    asocijacijaList = listOf("Curry", "Biryani", "Naan", "Samosa"),
+                    asocijacijaRjesenje = "Indijska"
+                )
+            ),
+            asocijacijaKonacnoRjesenje = "Hrana"
+        )
+
+        fun dajAsocijaciju() : Asocijacije
+        {
+            return asocijacijeData
+        }
         fun dajPitanjeKorakPoKorak(): List<KorakPoKorak> {
             return pitanjaKorakPoKorakList.shuffled()
         }

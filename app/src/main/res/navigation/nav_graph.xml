@@ -103,5 +103,17 @@
         <action
             android:id="@+id/action_singlePlayer_to_koZnaZnaGame"
             app:destination="@id/koZnaZnaGame" />
+        <action
+            android:id="@+id/action_singlePlayer_to_asocijacijaGame"
+            app:destination="@id/asocijacijaGame" />
+    </fragment>
+    <fragment
+        android:id="@+id/asocijacijaGame"
+        android:name="com.example.igricaslagalica.view.AsocijacijaGame"
+        android:label="fragment_asocijacija_game"
+        tools:layout="@layout/fragment_asocijacija_game" >
+        <action
+            android:id="@+id/action_asocijacijaGame_to_singlePlayer"
+            app:destination="@id/singlePlayer" />
     </fragment>
 </navigation>

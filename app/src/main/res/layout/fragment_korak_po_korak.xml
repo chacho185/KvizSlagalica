@@ -42,7 +42,7 @@
         android:hint="Odgovor"
         android:imeOptions="actionDone"
         android:singleLine="true"
-        android:textAlignment="center"></EditText>
+        android:textAlignment="center" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/tacanOdgovorCardView"
