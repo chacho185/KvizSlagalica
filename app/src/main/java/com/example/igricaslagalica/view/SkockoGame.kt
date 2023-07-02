@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
+import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.example.igricaslagalica.R
@@ -27,7 +28,7 @@ class SkockoGame : Fragment() {
     private var pokusaj = ArrayList<Skocko>()
     private var element = 0
     private var bodovi = 0
-
+    var gameId: String = ""
 
 
     override fun onCreateView(
@@ -43,9 +44,16 @@ class SkockoGame : Fragment() {
         napuniListuPolja()
         napuniHintListu()
         startGame()
-        binding.finishButton.setOnClickListener {
-            findNavController().navigate(R.id.action_skockoGame_to_singlePlayer)
+
+            binding.finishButton.setOnClickListener {
+                if(gameId != null){
+                    val bundle = bundleOf("gameId" to gameId)
+                    findNavController().navigate(R.id.action_singlePlayer_to_online_korakpokorak, bundle)
+                } else {
+                findNavController().navigate(R.id.action_skockoGame_to_singlePlayer)
+                }
         }
+
     }
 
     private fun napuniListuPolja() {
@@ -201,6 +209,7 @@ class SkockoGame : Fragment() {
         binding.pokusaji.visibility = View.GONE
         binding.tacanOdgovor.visibility = View.VISIBLE
         binding.opcije.visibility = View.GONE
+
     }
 
     private fun vratiImageResourceZaVrijednost(s: Skocko): Int {
