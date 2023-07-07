@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.igricaslagalica.R
 import com.example.igricaslagalica.model.Friend
 
-class FriendsAdapter(private val friendsList: List<Friend>) : RecyclerView.Adapter<FriendsAdapter.FriendsViewHolder>() {
+class FriendsAdapter(private var friendsList: List<Friend>) : RecyclerView.Adapter<FriendsAdapter.FriendsViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FriendsViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.prijatelj_item, parent, false)
@@ -25,7 +25,10 @@ class FriendsAdapter(private val friendsList: List<Friend>) : RecyclerView.Adapt
     override fun getItemCount(): Int {
         return friendsList.size
     }
-
+    fun updateData(newFriendsList: List<Friend>) {
+        friendsList = newFriendsList
+        notifyDataSetChanged()
+    }
     inner class FriendsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val imageViewProfile: ImageView = itemView.findViewById(R.id.imageViewProfile)
         private val textViewUsername: TextView = itemView.findViewById(R.id.textViewUsername)
@@ -35,13 +38,13 @@ class FriendsAdapter(private val friendsList: List<Friend>) : RecyclerView.Adapt
 
         fun bind(friend: Friend) {
             // Popunite poglede s podacima prijatelja
-            imageViewProfile.setImageResource(friend.profileImage)
+            friend.profileImage?.let { R.drawable.ic_profile_photo }
             textViewUsername.text = friend.username
-            textViewRank.text = friend.monthlyRank
-            textViewStars.text = friend.stars.toString()
+//            textViewRank.text = friend.monthlyRank
+//            textViewStars.text = friend.stars.toString()
 
             // Postavite slušač događaja na gumb za započinjanje partije ako je potrebno
-            if (friend.isActive && !friend.isInGame) {
+            if (friend.isActive == true && !friend.isInGame!!) {
                 buttonStartGame.visibility = View.VISIBLE
                 buttonStartGame.setOnClickListener {
                     //todo Logika za pokretanje partije s prijateljem
@@ -51,4 +54,5 @@ class FriendsAdapter(private val friendsList: List<Friend>) : RecyclerView.Adapt
             }
         }
     }
+
 }
