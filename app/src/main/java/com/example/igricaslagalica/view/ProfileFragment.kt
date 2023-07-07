@@ -106,6 +106,9 @@ class ProfileFragment : Fragment() {
                 onPlayOnlineButtonClicked(it.uid)
             }
         }
+        binding.buttonFriends.setOnClickListener{
+            findNavController().navigate(R.id.action_profileFragment_to_friendsFragment)
+        }
 
         binding.buttonLogout.setOnClickListener{
             authController.signOut()

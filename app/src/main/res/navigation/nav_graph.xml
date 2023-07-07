@@ -21,6 +21,9 @@
         <action
             android:id="@+id/action_loginFragment_to_multiPlayerAsocijacije"
             app:destination="@id/asocijacijaGame" />
+        <action
+            android:id="@+id/action_profileFragment_to_friendsFragment"
+            app:destination="@id/friendsFragment" />
 
 
     </fragment>
@@ -157,5 +160,13 @@
             android:id="@+id/action_singlePlayer_to_online_skockoGame"
             app:destination="@id/skockoGame" />
 
+    </fragment>
+    <fragment
+        android:id="@+id/friendsFragment"
+        android:name="com.example.igricaslagalica.view.FriendsFragment"
+        android:label="FriendsFragment" >
+        <action
+            android:id="@+id/action_friendsFragment_to_profileFragment"
+            app:destination="@id/profileFragment" />
     </fragment>
 </navigation>

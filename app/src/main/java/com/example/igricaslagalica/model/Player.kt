@@ -6,8 +6,8 @@ data class Player(
     val id: String? = null,
     val email: String? = null,
     val username: String? = null,
+    val friends: MutableList<String> = mutableListOf(),
     var tokens: Int = 0,
     var lastTokenTime: Timestamp = Timestamp.now(),
     var score: Int = 0
-
 )

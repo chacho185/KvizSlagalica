@@ -76,6 +76,12 @@
                 android:layout_height="wrap_content"
                 android:text="Play Online" />
 
+            <Button
+                android:id="@+id/buttonFriends"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Friends list" />
+
             <!-- Opcija za logout -->
             <Button
                 android:id="@+id/buttonLogout"
