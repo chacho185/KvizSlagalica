@@ -57,7 +57,7 @@ class MojBroj : Fragment() {
         resultString = binding.resultTextView
 
         startTimer()
-        gameId = arguments?.getString("gameId").toString()
+        gameId = arguments?.getString("gameId")
 
         binding.stopButton.setOnClickListener {
             if(!daLiJeIgraPocela)

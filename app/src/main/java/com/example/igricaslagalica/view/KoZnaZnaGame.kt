@@ -93,9 +93,8 @@ class KoZnaZnaGame : Fragment() {
             binding.finishButton.setOnClickListener {
                 sharedViewModel.setQuestionList(questionList)
 
-                findNavController().navigate(R.id.action_koZnaZnaGame_to_singlePlayer)
+                findNavController().navigate(R.id.action_koZnaZnaGame_to_spojnica_single)
             }
-            showNextQuestion()
         } else {
             binding.finishButton.text = "Continue"
             questionList = generateQuestions(gameId)
@@ -154,9 +153,6 @@ class KoZnaZnaGame : Fragment() {
         } else {
 
                 endGame()
-
-
-
         }
     }
 
@@ -207,9 +203,11 @@ class KoZnaZnaGame : Fragment() {
             }
         } else {
             val questions = StaticData.dajPitanjaKoZnaZna().shuffled()
+
             for (i in 0 until 5) {
                 randomQuestions.add(questions[i])
             }
+
             questionList = randomQuestions
             showNextQuestion()
         }

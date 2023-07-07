@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.igricaslagalica.R
@@ -93,9 +94,10 @@ class SpojnicaSingleFragment : Fragment() {
         }
         switchPlayerButton = view.findViewById(R.id.submit)
         switchPlayerButton.setOnClickListener {
-            switchPlayer()
-            updateScores()
-            timer.start()
+            findNavController().navigate(R.id.action_spojnica_single_to_asocijacijaGame)
+            //switchPlayer()
+            //updateScores()
+            //timer.start()
         }
 
     }
@@ -104,7 +106,7 @@ class SpojnicaSingleFragment : Fragment() {
         // stop the timer if it's still counting down
         timer.cancel()
 
-        gameController.switchPlayer()
+        //gameController.switchPlayer()
         val unansweredQuestions = gameController.getUnansweredConnections()
         questionsAdapter.updateData(unansweredQuestions)
         val correspondingUnansweredAnswers = gameController.getUnansweredConnections()

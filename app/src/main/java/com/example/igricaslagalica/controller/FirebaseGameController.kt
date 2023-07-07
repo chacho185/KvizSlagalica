@@ -87,7 +87,7 @@ class FirebaseGameController() {
                 val allQuestions = task.result?.documents?.mapNotNull { it.toObject(KoZnaZna::class.java) }
 
                 if (allQuestions != null) {
-                    val gameQuestions = allQuestions.shuffled().take(3).map {
+                    val gameQuestions = allQuestions.shuffled().take(5).map {
                         KoZnaZna(
                             id = it.id,
                             questionText = it.questionText,

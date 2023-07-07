@@ -5,6 +5,8 @@ import com.example.igricaslagalica.R
 import com.example.igricaslagalica.model.Friend
 import com.example.igricaslagalica.model.Player
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.firestore.FirebaseFirestore
 
 class FriendsViewModel : ViewModel() {
@@ -64,6 +66,7 @@ class FriendsViewModel : ViewModel() {
 
     private val _error = MutableLiveData<String>()
     val error: LiveData<String> = _error
+
 
     fun fetchFriends() {
         playersCollection.get()
