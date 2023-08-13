@@ -1,20 +1,15 @@
 package com.example.igricaslagalica.view
 
-import android.content.ContentValues
-import android.content.ContentValues.TAG
 import android.content.Context
 import android.os.Bundle
 import android.os.CountDownTimer
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.igricaslagalica.R
@@ -23,7 +18,6 @@ import com.example.igricaslagalica.model.Connection
 import com.example.igricaslagalica.model.Game
 import com.example.igricaslagalica.view.adapter.AnswersAdapter
 import com.example.igricaslagalica.view.adapter.QuestionsAdapter
-import com.google.firebase.firestore.FirebaseFirestore
 
 class GameOneFragment : Fragment() {
 
@@ -198,12 +192,12 @@ class GameOneFragment : Fragment() {
                 switchPlayer()
                 if(game.currentRound == 2 && game.currentTurn == game.player1 ){
                     val bundle = bundleOf("gameId" to gameId)
-                    findNavController().navigate(R.id.action_loginFragment_to_multiPlayerAsocijacije, bundle)
+                   // findNavController().navigate(R.id.action_loginFragment_to_multiPlayerAsocijacije, bundle)
 
                 }
                 if(game.currentRound == 1 && game.currentTurn != game.player1 ){
                     val bundle = bundleOf("gameId" to gameId)
-                    findNavController().navigate(R.id.action_loginFragment_to_multiPlayerAsocijacije, bundle)
+                    //findNavController().navigate(R.id.action_loginFragment_to_multiPlayerAsocijacije, bundle)
 
                 }
             } else {

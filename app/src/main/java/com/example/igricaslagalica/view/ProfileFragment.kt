@@ -142,7 +142,7 @@ class ProfileFragment : Fragment() {
                             Log.d("joinGame", "Successfully joined the game")
                             Toast.makeText(context, "Joined to $it", Toast.LENGTH_LONG).show()
                             val bundle = bundleOf("gameId" to it)
-                            findNavController().navigate(R.id.action_loginFragment_to_multiPlayer_kkz, bundle)
+                            //findNavController().navigate(R.id.action_loginFragment_to_multiPlayer_kkz, bundle)
 
 //                            findNavController().navigate(R.id.action_loginFragment_to_multiPlayer_kkz, bundle)
                         } else {
@@ -162,7 +162,7 @@ class ProfileFragment : Fragment() {
                         Toast.makeText(context, "Started $gameId", Toast.LENGTH_LONG).show()
 
                         val bundle = bundleOf("gameId" to gameId)
-                        findNavController().navigate(R.id.action_loginFragment_to_multiPlayer_kkz, bundle)
+                        //indNavController().navigate(R.id.action_loginFragment_to_multiPlayer_kkz, bundle)
 
                     } else {
                         Log.d("startGame", "Failed to start a new game")

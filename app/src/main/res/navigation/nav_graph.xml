@@ -16,12 +16,6 @@
         <action android:id="@+id/action_profileFragment_to_online_spojnice"
             app:destination="@+id/fragment_gameone"/>
         <action
-            android:id="@+id/action_loginFragment_to_multiPlayer_kkz"
-            app:destination="@id/koZnaZnaGame" />
-        <action
-            android:id="@+id/action_loginFragment_to_multiPlayerAsocijacije"
-            app:destination="@id/asocijacijaGame" />
-        <action
             android:id="@+id/action_profileFragment_to_friendsFragment"
             app:destination="@id/friendsFragment" />
 
@@ -34,13 +28,11 @@
 
         <action android:id="@+id/action_profileFragment_to_online_spojnice"
             app:destination="@+id/fragment_gameone"/>
-        <action android:id="@+id/action_loginFragment_to_multiPlayerAsocijacije"
-            app:destination="@+id/asocijacijaGame"/>
 
     </fragment>
     <fragment
         android:id="@+id/spojnica_single"
-        android:name="com.example.igricaslagalica.view.SpojnicaSingleFragment"
+        android:name="com.example.igricaslagalica.view.signleplayer.SpojnicaSingleFragment"
         android:label="Game One"  >
         <action
             android:id="@+id/action_spojnica_single_to_asocijacijaGame"
@@ -73,51 +65,37 @@
     </fragment>
     <fragment
         android:id="@+id/koZnaZnaGame"
-        android:name="com.example.igricaslagalica.view.KoZnaZnaGame"
+        android:name="com.example.igricaslagalica.view.signleplayer.KoZnaZnaGame"
         android:label="fragment_ko_zna_zna_game"
         tools:layout="@layout/fragment_ko_zna_zna_game" >
-        <action
-            android:id="@+id/action_koZnaZnaGame_to_singlePlayer"
-            app:destination="@id/singlePlayer" />
 
-        <action android:id="@+id/action_profileFragment_to_online_spojnice"
-            app:destination="@+id/fragment_gameone"/>
         <action
             android:id="@+id/action_koZnaZnaGame_to_spojnica_single"
             app:destination="@id/spojnica_single" />
     </fragment>
     <fragment
         android:id="@+id/mojBroj"
-        android:name="com.example.igricaslagalica.view.MojBroj"
+        android:name="com.example.igricaslagalica.view.signleplayer.MojBroj"
         android:label="fragment_moj_broj"
         tools:layout="@layout/fragment_moj_broj" >
         <action
             android:id="@+id/action_mojBroj_to_singlePlayer"
             app:destination="@id/singlePlayer" />
-        <action
-            android:id="@+id/action_loginFragment_to_profileFragment"
-            app:destination="@id/profileFragment" />
     </fragment>
     <fragment
         android:id="@+id/korakPoKorak"
-        android:name="com.example.igricaslagalica.view.KorakPoKorak"
+        android:name="com.example.igricaslagalica.view.signleplayer.KorakPoKorak"
         android:label="fragment_korak_po_korak"
         tools:layout="@layout/fragment_korak_po_korak" >
-        <action
-            android:id="@+id/action_korakPoKorak_to_singlePlayer"
-            app:destination="@id/singlePlayer" />
         <action
             android:id="@+id/action_singlePlayer_to_online_mojBroj"
             app:destination="@id/mojBroj" />
     </fragment>
     <fragment
         android:id="@+id/skockoGame"
-        android:name="com.example.igricaslagalica.view.SkockoGame"
+        android:name="com.example.igricaslagalica.view.signleplayer.SkockoGame"
         android:label="fragment_skocko_game"
         tools:layout="@layout/fragment_skocko_game" >
-        <action
-            android:id="@+id/action_skockoGame_to_singlePlayer"
-            app:destination="@id/singlePlayer" />
         <action
             android:id="@+id/action_singlePlayer_to_online_korakpokorak"
             app:destination="@id/korakPoKorak" />
@@ -145,19 +123,16 @@
             android:id="@+id/action_singlePlayer_to_asocijacijaGame"
             app:destination="@id/asocijacijaGame" />
         <action
-            android:id="@+id/action_singlePlayer_to_spojnice"
+            android:id="@+id/action_singlePlayer_to_spojnica_single"
             app:destination="@id/spojnica_single" />
 
 
     </fragment>
     <fragment
         android:id="@+id/asocijacijaGame"
-        android:name="com.example.igricaslagalica.view.AsocijacijaGame"
+        android:name="com.example.igricaslagalica.view.signleplayer.AsocijacijaGame"
         android:label="fragment_asocijacija_game"
         tools:layout="@layout/fragment_asocijacija_game" >
-        <action
-            android:id="@+id/action_asocijacijaGame_to_singlePlayer"
-            app:destination="@id/singlePlayer" />
         <action
             android:id="@+id/action_singlePlayer_to_online_skockoGame"
             app:destination="@id/skockoGame" />
@@ -170,5 +145,53 @@
         <action
             android:id="@+id/action_friendsFragment_to_profileFragment"
             app:destination="@id/profileFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/asocijacijaGameMulti"
+        android:name="com.example.igricaslagalica.view.multiplayer.AsocijacijaGameMulti"
+        android:label="AsocijacijaGameMulti" >
+        <action
+            android:id="@+id/action_asocijacijaGameMulti_to_skockoGameMulti"
+            app:destination="@id/skockoGameMulti" />
+    </fragment>
+    <fragment
+        android:id="@+id/koZnaZnaGameMulti"
+        android:name="com.example.igricaslagalica.view.multiplayer.KoZnaZnaGameMulti"
+        android:label="KoZnaZnaGameMulti" >
+        <action
+            android:id="@+id/action_koZnaZnaGameMulti_to_spojnicaSingleFragmentMulti"
+            app:destination="@id/spojnicaSingleFragmentMulti" />
+    </fragment>
+    <fragment
+        android:id="@+id/korakPoKorakMulti"
+        android:name="com.example.igricaslagalica.view.multiplayer.KorakPoKorakMulti"
+        android:label="KorakPoKorakMulti" >
+        <action
+            android:id="@+id/action_korakPoKorakMulti_to_mojBrojMulti"
+            app:destination="@id/mojBrojMulti" />
+    </fragment>
+    <fragment
+        android:id="@+id/mojBrojMulti"
+        android:name="com.example.igricaslagalica.view.multiplayer.MojBrojMulti"
+        android:label="MojBrojMulti" >
+        <action
+            android:id="@+id/action_mojBrojMulti_to_fragment_gameone"
+            app:destination="@id/fragment_gameone" />
+    </fragment>
+    <fragment
+        android:id="@+id/skockoGameMulti"
+        android:name="com.example.igricaslagalica.view.multiplayer.SkockoGameMulti"
+        android:label="SkockoGameMulti" >
+        <action
+            android:id="@+id/action_skockoGameMulti_to_korakPoKorakMulti"
+            app:destination="@id/korakPoKorakMulti" />
+    </fragment>
+    <fragment
+        android:id="@+id/spojnicaSingleFragmentMulti"
+        android:name="com.example.igricaslagalica.view.multiplayer.SpojnicaSingleFragmentMulti"
+        android:label="SpojnicaSingleFragmentMulti" >
+        <action
+            android:id="@+id/action_spojnicaSingleFragmentMulti_to_asocijacijaGameMulti"
+            app:destination="@id/asocijacijaGameMulti" />
     </fragment>
 </navigation>

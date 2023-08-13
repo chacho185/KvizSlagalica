@@ -1,4 +1,4 @@
-package com.example.igricaslagalica.view
+package com.example.igricaslagalica.view.multiplayer
 
 import android.content.ContentValues.TAG
 import android.content.Context
@@ -24,7 +24,7 @@ import com.example.igricaslagalica.model.Game
 import com.example.igricaslagalica.model.KoZnaZna
 import com.google.firebase.firestore.FirebaseFirestore
 
-class KoZnaZnaGame : Fragment() {
+class KoZnaZnaGameMulti : Fragment() {
     private var _binding: FragmentKoZnaZnaGameBinding? = null
     private lateinit var gameController: KoZnaZnaController
     private val binding get() = _binding!!
@@ -93,7 +93,7 @@ class KoZnaZnaGame : Fragment() {
             binding.finishButton.setOnClickListener {
                 sharedViewModel.setQuestionList(questionList)
 
-                findNavController().navigate(R.id.action_koZnaZnaGame_to_spojnica_single)
+                findNavController().navigate(R.id.action_koZnaZnaGameMulti_to_spojnicaSingleFragmentMulti)
             }
         } else {
             binding.finishButton.text = "Continue"

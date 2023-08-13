@@ -1,4 +1,4 @@
-package com.example.igricaslagalica.view
+package com.example.igricaslagalica.view.multiplayer
 
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -16,7 +16,7 @@ import com.example.igricaslagalica.data.StaticData
 import com.example.igricaslagalica.model.KorakPoKorak
 import com.example.igricaslagalica.databinding.FragmentKorakPoKorakBinding
 
-class KorakPoKorak : Fragment() {
+class KorakPoKorakMulti : Fragment() {
     private var _binding: FragmentKorakPoKorakBinding? = null
     private val binding get() = _binding!!
     private val sharedViewModel: SharedViewModel by activityViewModels()
@@ -55,9 +55,7 @@ class KorakPoKorak : Fragment() {
             if (binding.provjeriButton.text == "Finish")
                 if(gameId != null){
                     val bundle = bundleOf("gameId" to gameId)
-                    findNavController().navigate(R.id.action_singlePlayer_to_online_mojBroj, bundle)
-                } else {
-                    findNavController().navigate(R.id.action_korakPoKorak_to_singlePlayer)
+                    findNavController().navigate(R.id.action_korakPoKorakMulti_to_mojBrojMulti, bundle)
                 }
 
             var odgovor = binding.odgovorEditText.text.toString()

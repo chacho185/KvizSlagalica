@@ -47,7 +47,7 @@ class SinglePlayer : Fragment() {
         }
         binding.buttonSpojnice.setOnClickListener {
             // TODO: dodati navigaciju na ovu igru
-            findNavController().navigate(R.id.action_singlePlayer_to_spojnice)
+            findNavController().navigate(R.id.action_singlePlayer_to_spojnica_single)
         }
     }
 

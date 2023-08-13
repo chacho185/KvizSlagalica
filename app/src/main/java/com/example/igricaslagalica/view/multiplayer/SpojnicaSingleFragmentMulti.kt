@@ -1,4 +1,4 @@
-package com.example.igricaslagalica.view
+package com.example.igricaslagalica.view.multiplayer
 
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -12,12 +12,12 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.igricaslagalica.R
-import com.example.igricaslagalica.controller.SpojnicaGameController
 import com.example.igricaslagalica.controller.SpojnicaSinglePlayer
 import com.example.igricaslagalica.view.adapter.AnswersAdapter
 import com.example.igricaslagalica.view.adapter.QuestionsAdapter
+import com.example.igricaslagalica.view.GameOneFragment
 
-class SpojnicaSingleFragment : Fragment() {
+class SpojnicaSingleFragmentMulti : Fragment() {
 
     private lateinit var gameController: SpojnicaSinglePlayer
     private lateinit var questionsRecyclerView: RecyclerView
@@ -94,7 +94,7 @@ class SpojnicaSingleFragment : Fragment() {
         }
         switchPlayerButton = view.findViewById(R.id.submit)
         switchPlayerButton.setOnClickListener {
-            findNavController().navigate(R.id.action_spojnica_single_to_asocijacijaGame)
+            findNavController().navigate(R.id.action_spojnicaSingleFragmentMulti_to_asocijacijaGameMulti)
             //switchPlayer()
             //updateScores()
             //timer.start()

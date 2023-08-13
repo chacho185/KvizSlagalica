@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".view.KorakPoKorak">
+    tools:context=".view.signleplayer.KorakPoKorak">
 
     <TextView
         android:layout_width="wrap_content"
