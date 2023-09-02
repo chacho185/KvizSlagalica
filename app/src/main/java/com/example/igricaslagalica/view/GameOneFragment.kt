@@ -187,7 +187,7 @@ class GameOneFragment : Fragment() {
     private fun switchTurnAndCheckGameEnd(game: Game, gameId: String) {
         gameController.switchTurn(game, game.currentTurn) { success ->
             if (success) {
-                gameController.endRound(gameId)
+               // gameController.endRound(gameId)
                 getCurrentPlayer(game.currentTurn, game.currentRound)
                 switchPlayer()
                 if(game.currentRound == 2 && game.currentTurn == game.player1 ){

@@ -1,5 +1,6 @@
 package com.example.igricaslagalica.view.multiplayer
 
+import android.annotation.SuppressLint
 import android.content.ContentValues.TAG
 import android.content.Context
 import android.os.Bundle
@@ -8,6 +9,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.TextView
@@ -17,16 +19,20 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.example.igricaslagalica.R
 import com.example.igricaslagalica.SharedViewModel
+import com.example.igricaslagalica.controller.FirebaseGameController
 import com.example.igricaslagalica.controller.KoZnaZnaController
 import com.example.igricaslagalica.data.StaticData
 import com.example.igricaslagalica.databinding.FragmentKoZnaZnaGameBinding
 import com.example.igricaslagalica.model.Game
 import com.example.igricaslagalica.model.KoZnaZna
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 class KoZnaZnaGameMulti : Fragment() {
     private var _binding: FragmentKoZnaZnaGameBinding? = null
     private lateinit var gameController: KoZnaZnaController
+    private lateinit var firebaseGameController: FirebaseGameController
+
     private val binding get() = _binding!!
     private val sharedViewModel: SharedViewModel by activityViewModels()
 
@@ -53,11 +59,15 @@ class KoZnaZnaGameMulti : Fragment() {
     private var playerId1: String? = null
     private var playerId2: String? = null
 
+    private var hasStartedGame = false
+    private var isPlayer1Done = false
+    private var isPlayer2Done = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Initialize the game controller
         gameController = KoZnaZnaController()
+        firebaseGameController = FirebaseGameController()
     }
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -82,93 +92,78 @@ class KoZnaZnaGameMulti : Fragment() {
         textViewScore = binding.textViewScore
         val gameId = arguments?.getString("gameId")
         isMultiplayer = gameId != null
-        if (!isMultiplayer) {
 
-            questionList = generateQuestions(gameId)
-            binding.nextButton.setOnClickListener {
-                timer.cancel()
-                checkAnswer()
-                showNextQuestion()
+        binding.finishButton.text = "Continue"
+        if (gameId != null) {
+            firebaseGameController.listenForGameChanges(gameId) { updatedGame ->
+                if (updatedGame != null) {
+                    updateUI(updatedGame)
+                } else {
+                    // Handle failure or game not found
+                    handleGameNotFound()
+                }
             }
-            binding.finishButton.setOnClickListener {
-                sharedViewModel.setQuestionList(questionList)
+        }
+        val gameRef = gameId?.let { FirebaseFirestore.getInstance().collection("games").document(it) }
 
-                findNavController().navigate(R.id.action_koZnaZnaGameMulti_to_spojnicaSingleFragmentMulti)
+        binding.finishButton.setOnClickListener {
+            //this needs to be deleted
+            if (FirebaseAuth.getInstance().currentUser?.uid == playerId1) {
+                gameRef?.update("player1Done", true)
+            } else if (FirebaseAuth.getInstance().currentUser?.uid == playerId2) {
+                gameRef?.update("player2Done", true)
             }
-        } else {
-            binding.finishButton.text = "Continue"
-            questionList = generateQuestions(gameId)
+            // end of deletion here
+                val bundle = bundleOf("gameId" to gameId)
+                findNavController().navigate(R.id.action_koZnaZnaGameMulti_to_spojnicaSingleFragmentMulti, bundle)
+        }
+        binding.finishButton.visibility = View.VISIBLE
+    }
+
+    private fun updateUI(game: Game) {
+        // Update your UI components with the latest game data
+        // Hide loading indicators, show game data, etc.
+
+        playerId1 = game.player1
+        playerId2 = game.player2
+        val gameRef = game.id?.let { FirebaseFirestore.getInstance().collection("games").document(it) }
+
+        Log.d("trees", "gameid 23 ++  === ${game.id}  ")
+        if(!hasStartedGame && game.status == "playing") {
+            hasStartedGame = true
+            questionList = generateQuestions(game.id)
             binding.nextButton.setOnClickListener {
                 timer.cancel()
                 checkAnswerMultiPlayer()
                 showNextQuestionMultiPlayer(questionList)
             }
-            binding.finishButton.setOnClickListener {
-                val bundle = bundleOf("gameId" to gameId)
+        }
 
-                findNavController().navigate(R.id.action_profileFragment_to_online_spojnice, bundle)
+        if (binding.nextButton.text == "Done") {
+            binding.nextButton.setOnClickListener {
+                if (FirebaseAuth.getInstance().currentUser?.uid == game.player1) {
+                    gameRef?.update("player1Done", true)
+                    checkAnswerMultiPlayer()
+                    endGame()
+                } else if (FirebaseAuth.getInstance().currentUser?.uid == game.player2) {
+                    gameRef?.update("player2Done", true)
+                    checkAnswerMultiPlayer()
+                    endGame()
+                }
             }
         }
-
-        if (gameId != null) {
-
-            gameController.fetchGame(gameId,
-                onSuccess = { game ->
-                    // Ovde ažurirajte UI sa podacima o igri
-                    // game.questionInfoIgra1 će sadržavati podatke o pitanjima za Igra1
-                    // game.questionInfoIgra2 će sadržavati podatke o pitanjima za Igra2
-//                    questionTextView.text = game.koZnaZnaQuestions[0].questionText
-                    Log.w(TAG,"Questions from fetch 1 ${game}")
-                    playerId1 = game.player1
-                    playerId2 = game.player2
-
-                },
-                onFailure = { exception ->
-                    // Ovde se rukuje greškom pri preuzimanju igre
-                }
-            )
-
+        if (game.isPlayer1Done && game.isPlayer2Done) {
+            // Both players are done, show final scores
+            showScore(game.player1Score, game.player2Score)
+          //  binding.nextButton.visibility = View.VISIBLE
+        } else if (game.isPlayer1Done || game.isPlayer2Done) {
+           textViewScore.text = "Waiting for final score"
         }
-
 
     }
 
-
-    private fun showNextQuestion() {
-        if (currentQuestionIndex < 5) {
-            if (currentQuestionIndex == 4)
-                binding.nextButton.text = "Done"
-
-            resetRadioButtons()
-
-            val question = questionList[currentQuestionIndex]
-            questionTextView.text = question.questionText
-            option1RadioButton.text = question.options[0]
-            option2RadioButton.text = question.options[1]
-            option3RadioButton.text = question.options[2]
-            option4RadioButton.text = question.options[3]
-
-            currentQuestionIndex++
-            startTimer()
-        } else {
-
-                endGame()
-        }
-    }
-
-
-    private fun checkAnswer() {
-        val currentQuestion = questionList[currentQuestionIndex - 1]
-        val selectedAnswerIndex = getSelectedAnswerIndex()
-
-        questionList[currentQuestionIndex - 1].player1Answered = selectedAnswerIndex
-        questionList[currentQuestionIndex - 1].player1AnswerTime = remainingTime
-        if (selectedAnswerIndex == currentQuestion.correctAnswer) {
-            totalScore += 10
-        } else {
-            if (selectedAnswerIndex != -1)
-                totalScore -= 5
-        }
+    private fun handleGameNotFound() {
+        // Handle the case where the game document is not found
     }
 
     private fun getSelectedAnswerIndex(): Int {
@@ -188,29 +183,21 @@ class KoZnaZnaGameMulti : Fragment() {
     private fun generateQuestions(gameId: String?): List<KoZnaZna> {
         var randomQuestions = mutableListOf<KoZnaZna>()
 
-        if (isMultiplayer) {
+
             if (gameId != null) {
                 gameController.fetchGame(gameId,
                     onSuccess = { questions ->
                         questionList = questions.koZnaZnaQuestions
                         randomQuestions = questions.koZnaZnaQuestions.toMutableList()
                         showNextQuestionMultiPlayer(questions.koZnaZnaQuestions)
+
                     },
                     onFailure = { exception ->
                         // Ovdje rukujemo greškom pri preuzimanju pitanja
                     }
                 )
             }
-        } else {
-            val questions = StaticData.dajPitanjaKoZnaZna().shuffled()
 
-            for (i in 0 until 5) {
-                randomQuestions.add(questions[i])
-            }
-
-            questionList = randomQuestions
-            showNextQuestion()
-        }
         return randomQuestions
     }
 
@@ -230,49 +217,28 @@ class KoZnaZnaGameMulti : Fragment() {
 
             currentQuestionIndex++
             startTimer()
-        } else {
-           checkAndShowWinner()
-            endGame()
         }
+
     }
     private fun checkAnswerMultiPlayer() {
         val currentQuestion = questionList[currentQuestionIndex - 1]
-        val selectedAnswerIndex = getSelectedAnswerIndex()
+        val selectedAnswerIndex = getSelectedAnswerIndex() - 1
 
-//        currentQuestion.userAnswer = selectedAnswerIndex
-//        currentQuestion.remainingTime = remainingTime
-
-        val sharedPreferences = activity?.getSharedPreferences("MyApp", Context.MODE_PRIVATE)
-        val currentPlayerId = sharedPreferences?.getString("currentPlayerId", null)
+        val currentPlayerId = FirebaseAuth.getInstance().currentUser?.uid
         var answerTimePlayerOne : Long = 0
         var answerTimePlayerTwo: Long = 0
         Log.w(TAG, "test $currentPlayerId")
-        if (currentPlayerId == playerId1) {
-            player1Answer = selectedAnswerIndex
-            answerTimePlayerOne = 5000 - remainingTime
-
-        } else if (currentPlayerId == playerId2) {
-            // Igrač 2 je kliknuo
-            Log.w(TAG, "test player klik $currentPlayerId")
-
-            player2Answer = selectedAnswerIndex
-            answerTimePlayerTwo = 5000 - remainingTime
-
-        }
-
         if (selectedAnswerIndex == currentQuestion.correctAnswer) {
             totalScore += 10
         } else {
-            if (selectedAnswerIndex != -1) {
+            if (selectedAnswerIndex != -2) {
                 totalScore -= 5
             }
         }
         if (isMultiplayer) {
             val gameId = arguments?.getString("gameId")
             if (gameId != null) {
-//                val answerTime = 5000 - remainingTime // Primjer: Pretpostavljamo da je ukupno vrijeme 5000 ms
                 val questionIndex = currentQuestionIndex - 1
-//                checkAndShowWinner()
                 if (currentPlayerId == playerId1) {
                     player1Answer = selectedAnswerIndex
                     answerTimePlayerOne = 5000 - remainingTime
@@ -284,8 +250,6 @@ class KoZnaZnaGameMulti : Fragment() {
                     gameController.saveAnswerForPlayer2(gameId,questionIndex , player2Answer,answerTimePlayerTwo)
 
                 }
-//                gameController.saveAnswerForQuestion(gameId,questionIndex ,answerTimePlayerOne, player1Answer, player2Answer,answerTimePlayerTwo)
-
             }
         }
     }
@@ -339,7 +303,7 @@ class KoZnaZnaGameMulti : Fragment() {
 
                        Log.d(TAG, "questions from Player 1 Score: $player1Score")
                        Log.d(TAG, "questions from Player 2 Score: $player2Score")
-                       textViewScore.text = "Player1 score: $player1Score \n Player2 score: $player2Score"
+//                       textViewScore.text = "Player1 score: $player1Score \n Player2 score: $player2Score"
 
                        if (gameId != null) {
                            gameController.saveResultToDatabase(gameId, player1Score, player2Score)
@@ -356,7 +320,7 @@ class KoZnaZnaGameMulti : Fragment() {
    }
 
     private fun startTimer() {
-        timer = object : CountDownTimer(5000, 10) {
+        timer = object : CountDownTimer(9000, 10) {
             override fun onTick(millisUntilFinished: Long) {
                 remainingTime = millisUntilFinished
                 val secondsLeft = millisUntilFinished / 1000
@@ -378,18 +342,15 @@ class KoZnaZnaGameMulti : Fragment() {
         binding.pitanjeView.visibility = View.GONE
         binding.textViewScore.visibility = View.VISIBLE
         binding.nextButton.visibility = View.GONE
-        binding.finishButton.visibility = View.VISIBLE
+        binding.finishButton.visibility = View.GONE
         binding.timerTextView.visibility = View.GONE
-        if(isMultiplayer) {
-          //  textViewScore.text = "Player1 score: $player1Score \n Player2 score: $player2Score"
-        } else {
-            updateScore()
-        }
-
+        checkAndShowWinner()
     }
 
-    private fun updateScore() {
-        textViewScore.text = "Ukupan skor je: $totalScore"
-    }
+    private fun showScore(player1Score: Int, player2Score: Int) {
 
+        textViewScore.text = "Player1 score: $player1Score \n Player2 score: $player2Score"
+        binding.finishButton.visibility = View.VISIBLE
+
+    }
 }

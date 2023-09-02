@@ -5,6 +5,7 @@ import android.util.Log
 import com.example.igricaslagalica.model.Connection
 import com.example.igricaslagalica.model.Game
 import com.example.igricaslagalica.model.KoZnaZna
+import com.example.igricaslagalica.model.Skocko
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.firestore.FirebaseFirestore
@@ -133,39 +134,58 @@ class FirebaseGameController() {
             }
         }
     }
+    fun listenForGameChanges(gameId: String, gameCallback: (Game?) -> Unit) {
+        val gameRef = db.collection("games").document(gameId) //db.document(gameId)
+        gameRef.addSnapshotListener { documentSnapshot, e ->
+            if (e != null) {
+                Log.e("ListenForGameChanges", "Error listening for game changes", e)
+                gameCallback(null) // Return null in case of failure
+                return@addSnapshotListener
+            }
 
-//    fun createGame(playerId: String, gameId: String, onQuestionsFetched: (String) -> Unit) {
-//        val gameRef = db.collection("games").document(gameId)
-//
-//        val game = Game(
-//            id = gameId,
-//            player1 = playerId,
-//            currentTurn = playerId
-//        )
-//
-//        val taskIgra1 = fetchQuestionsForIgra1()
-//        val taskIgra2 = fetchQuestionsForIgra2()
-//
-//        taskIgra1.addOnSuccessListener { results ->
-//            game.koZnaZnaQuestions = results
-//            // Update Firestore
-//            gameRef.update("questionInfoIgra1", game.koZnaZnaQuestions).addOnSuccessListener {
-//                Log.w(TAG, "Questions for game 1 updated: $gameId")
-//                onQuestionsFetched(gameId)
-//            }
-//        }
-//
-//        taskIgra2.addOnSuccessListener { results ->
-//            game.questionInfo = results
-//
-//            // Update Firestore
-//            gameRef.update("questionInfo", game.questionInfo).addOnSuccessListener {
-//                Log.w(TAG, "Questions for game 2 updated: $gameId")
-//                onQuestionsFetched(gameId)
-//            }
-//        }
-//
-//    }
+            val game = documentSnapshot?.toObject(Game::class.java)
+            gameCallback(game)
+        }
+    }
+
+    fun saveResultToDatabase(gameId: String, player1Score: Int, player2Score: Int) {
+        updateGameField(gameId, "player1Score", player1Score) { success1 ->
+            if (success1) {
+                updateGameField(gameId, "player2Score", player2Score) { success2 ->
+                }
+            }
+        }
+    }
+    fun updateGameField(gameId: String, field: String, value: Any, callback: (Boolean) -> Unit) {
+        db.collection("games").document(gameId)
+            .update(field, value)
+            .addOnSuccessListener {
+                callback(true)
+            }
+            .addOnFailureListener {
+                callback(false)
+            }
+    }
+    fun listenForPlayerCompletion(gameId: String, player: String, completionCallback: (Boolean) -> Unit) {
+        val gameRef = db.collection("games").document(gameId)
+        gameRef.addSnapshotListener { documentSnapshot, e ->
+            if (e != null) {
+                Log.e("ListenForPlayerCompletion", "Error listening for player completion", e)
+                completionCallback(false) // Return false in case of failure
+                return@addSnapshotListener
+            }
+
+            val game = documentSnapshot?.toObject(Game::class.java)
+            val isPlayerDone = when (player) {
+                "player1" -> game?.isPlayer1Done ?: false
+                "player2" -> game?.isPlayer2Done ?: false
+                else -> false
+            }
+
+            completionCallback(isPlayerDone)
+        }
+    }
+
 
     fun fetchQuestionsForIgra1(): Task<List<KoZnaZna>> {
         return FirebaseFirestore.getInstance().collection("koZnaZnaQuestions").get().continueWith { task ->

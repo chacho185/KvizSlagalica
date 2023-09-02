@@ -10,4 +10,5 @@ data class KoZnaZna(
     var player2Answered: Int = -1,
     var player1AnswerTime: Long = 0,
     var player2AnswerTime: Long = 0,
-)
+
+    )

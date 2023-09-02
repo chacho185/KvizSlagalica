@@ -25,23 +25,23 @@ class SpojnicaGameController {
     private val db = FirebaseFirestore.getInstance()
     fun watchGame(gameId: String, onUpdate: (Game?) -> Unit) {
 
-        db.collection("games").document(gameId)
-            .addSnapshotListener { snapshot, e ->
-                if (e != null) {
-                    Log.w(ContentValues.TAG, "Listen failed.", e)
-                    onUpdate(null)
-                    return@addSnapshotListener
-                }
-
-                if (snapshot != null && snapshot.exists()) {
-                    Log.d(ContentValues.TAG, "Current data: ${snapshot.data}")
-                    val game = snapshot.toObject(Game::class.java)
-                    onUpdate(game)
-                } else {
-                    Log.d(ContentValues.TAG, "Current data: null")
-                    onUpdate(null)
-                }
-            }
+//        db.collection("games").document(gameId)
+//            .addSnapshotListener { snapshot, e ->
+//                if (e != null) {
+//                    Log.w(ContentValues.TAG, "Listen failed.", e)
+//                    onUpdate(null)
+//                    return@addSnapshotListener
+//                }
+//
+//                if (snapshot != null && snapshot.exists()) {
+//                    Log.d(ContentValues.TAG, "Current data: ${snapshot.data}")
+//                    val game = snapshot.toObject(Game::class.java)
+//                    onUpdate(game)
+//                } else {
+//                    Log.d(ContentValues.TAG, "Current data: null")
+//                    onUpdate(null)
+//                }
+//            }
     }
 
     // Metoda za preuzimanje igre s Firestore-a
@@ -118,9 +118,8 @@ class SpojnicaGameController {
         connection.answeredBy = currentPlayerId
 
 
-
         game.id?.let { gameId ->
-            updateGameField(gameId, "questionInfo", game.questionInfo) { success ->
+            updateGameField(gameId, "questionInfo",  game.questionInfo) { success ->
                 if (success) {
                     // If all updates are successful, invoke callback with true
                     callback(true)
@@ -133,54 +132,99 @@ class SpojnicaGameController {
 
     }
 
+    // Inside your game controller or similar class
+
+    fun handleRound1(game: Game, callback: (Boolean) -> Unit) {
+        val allQuestionsAnsweredCorrectly = game.questionInfo.all { it.correct }
+
+        if (allQuestionsAnsweredCorrectly) {
+            // Switch to Round 2
+            game.currentRound = 2
+            game.currentTurn = game.player2!!
+            updateGameField(game.id!!, "currentRound", 2) { success ->
+                if (success) {
+                    updateGameField(game.id!!, "currentTurn", game.player2) { success ->
+                        callback(success)
+                    }
+                } else {
+                    callback(false)
+                }
+            }
+        } else {
+            // Switch turn to Player 2 in Round 1
+            game.player1?.let {
+                switchTurn(game, it) { success ->
+                    callback(success)
+                }
+            }
+        }
+    }
+
+    fun handleRound2(game: Game, callback: (Boolean) -> Unit) {
+        val allQuestionsAnsweredCorrectly = game.questionInfo.all { it.correct && it.answeredBy == game.player2 }
+
+        if (allQuestionsAnsweredCorrectly) {
+            // End the game
+
+            callback(true)
+        } else {
+            // Switch turn to Player 1 in Round 2
+            game.player1?.let {
+                switchTurn(game, it) { success ->
+                    callback(success)
+                }
+            }
+        }
+    }
     fun switchTurn(game: Game, currentPlayerId: String, callback: (Boolean) -> Unit) {
         val otherPlayerId = if (game.player1 == currentPlayerId) game.player2 else game.player1
         if (otherPlayerId != null) {
-            game.currentTurn = otherPlayerId // update the Game object in memory
+            game.currentTurn = otherPlayerId // Update the current turn
         }
+
+        if (game.currentRound == 1) {
+            // Round 1 logic
+            val allRound1QuestionsAnswered = game.questionInfo.all { it.assignedToPlayer != null && it.correct }
+            if (allRound1QuestionsAnswered) {
+                // Move to Round 2
+                game.currentRound = 2
+
+                game.id?.let { gameId ->
+                    updateGameField(gameId, "currentRound", game.currentRound, callback)
+                }
+                return
+            }
+        }
+
+        if (game.currentRound == 2 && game.player2 == currentPlayerId) {
+            // Round 2 logic for Player 2
+            val allRound2QuestionsAnswered = game.questionInfo.all { it.assignedToPlayer != null && it.correct }
+            if (allRound2QuestionsAnswered) {
+                // Game ends
+                game.id?.let { gameId ->
+                    updateGameField(gameId, "currentRound", 3, callback)
+                }
+                callback(true)
+                return
+            }
+        }
+
+        // Update the current turn only
         game.id?.let { gameId ->
             if (otherPlayerId != null) {
                 updateGameField(gameId, "currentTurn", otherPlayerId, callback)
             }
         }
     }
-    fun endRound(gameId: String) {
-        val gameRef = db.collection("games").document(gameId)
-        gameRef.get().addOnSuccessListener { document ->
-            val game = document.toObject(Game::class.java)
-
-            if (game != null) {
-                val isRoundOver = game.questionInfo.all { it.assignedToPlayer != null && it.answered }
-                // ovo nam automatski prebacuje na drugu rundu i generise pitanja nakon sto player 1 zavrsi
-                if (isRoundOver || game.currentTurn == game.player2) {
-                    game.currentRound++
-
-                        generateNewQuestions(game) { newQuestions ->
-                            game.questionInfo = newQuestions
-                            gameRef.set(game, SetOptions.merge())
-                        }
-
-                } else {
-                    Log.w(TAG,"here we are 33")
-                    if (game.currentRound == 1) {
-                        game.questionInfo.forEach {
-                            if (!it.correct && it.assignedToPlayer == game.player1) {
-                                it.assignedToPlayer = game.player2
-                            }
-                        }
-                        game.currentRound++
-                    }
+    fun saveResultToDatabase(gameId: String, player1Score: Int, player2Score: Int) {
+        updateGameField(gameId, "player1Score", player1Score) { success1 ->
+            if (success1) {
+                updateGameField(gameId, "player2Score", player2Score) { success2 ->
                 }
-                // Ažurirajte igru u Firestore
-                Log.w(TAG,"here we are end  ++ ${game}")
-
-                gameRef.set(game, SetOptions.merge())
             }
         }
     }
-
-
-    fun generateNewQuestions(game: Game, onQuestionsFetched: (List<Connection>) -> Unit) {
+    fun generateNewQuestions(game: Game, assignedToPlayer: String = "", onQuestionsFetched: (List<Connection>) -> Unit) {
         db.collection("spojnicaQuestions").get().addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 val allQuestions = task.result?.documents?.mapNotNull { it.toObject(Connection::class.java) }
@@ -189,7 +233,8 @@ class SpojnicaGameController {
                         Connection(
                             question = it.question,
                             answer = it.answer,
-                            assignedToPlayer = game.currentTurn
+
+                            assignedToPlayer = if (assignedToPlayer.isNotEmpty()) assignedToPlayer else game.currentTurn // game.currentTurn
                         )
                     }
                     onQuestionsFetched(gameQuestions)
