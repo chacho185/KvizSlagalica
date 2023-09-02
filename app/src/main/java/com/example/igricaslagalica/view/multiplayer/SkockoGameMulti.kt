@@ -64,6 +64,7 @@ class SkockoGameMulti : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val gameId = arguments?.getString("gameId")
+
         binding.finishButton.visibility = View.GONE
 
             binding.finishButton.setOnClickListener {

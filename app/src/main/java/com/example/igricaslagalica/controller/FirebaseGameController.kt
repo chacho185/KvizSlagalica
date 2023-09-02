@@ -5,10 +5,12 @@ import android.util.Log
 import com.example.igricaslagalica.model.Connection
 import com.example.igricaslagalica.model.Game
 import com.example.igricaslagalica.model.KoZnaZna
+import com.example.igricaslagalica.model.Player
 import com.example.igricaslagalica.model.Skocko
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 
 class FirebaseGameController() {
     private val db = FirebaseFirestore.getInstance()
@@ -147,13 +149,32 @@ class FirebaseGameController() {
             gameCallback(game)
         }
     }
-
-    fun saveResultToDatabase(gameId: String, player1Score: Int, player2Score: Int) {
-        updateGameField(gameId, "player1Score", player1Score) { success1 ->
-            if (success1) {
-                updateGameField(gameId, "player2Score", player2Score) { success2 ->
-                }
+    fun updatePlayerStars(playerId: String, value:Any, callback: (Boolean) -> Unit) {
+        db.collection("players").document(playerId)
+            .update("score", value)
+            .addOnSuccessListener {
+                callback(true)
             }
+            .addOnFailureListener {
+                callback(false)
+            }
+    }
+    fun getCurrentStars(playerId: String, onComplete: (Int?) -> Unit) {
+        db.collection("players").document(playerId).get().addOnSuccessListener { documentSnapshot ->
+            val playerStars = documentSnapshot.getLong("score")?.toInt()
+            onComplete(playerStars)
+        }.addOnFailureListener { e ->
+            Log.w(TAG, "Error retrieving player name", e)
+            onComplete(null)
+        }
+    }
+    fun getPlayerName(playerId: String, onComplete: (String?) -> Unit) {
+        db.collection("players").document(playerId).get().addOnSuccessListener { documentSnapshot ->
+            val playerName = documentSnapshot.getString("username")
+            onComplete(playerName)
+        }.addOnFailureListener { e ->
+            Log.w(TAG, "Error retrieving player name", e)
+            onComplete(null)
         }
     }
     fun updateGameField(gameId: String, field: String, value: Any, callback: (Boolean) -> Unit) {
@@ -166,6 +187,26 @@ class FirebaseGameController() {
                 callback(false)
             }
     }
+    fun getRankedPlayers(rankedPlayersCallback: (List<Player>) -> Unit) {
+        val playersCollection = db.collection("players")
+        playersCollection.orderBy("score", Query.Direction.DESCENDING)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                val rankedPlayersList = mutableListOf<Player>()
+                for (documentSnapshot in querySnapshot) {
+                    val player = documentSnapshot.toObject(Player::class.java)
+                    rankedPlayersList.add(player)
+                }
+                Log.w("ol", "|Playerlist $rankedPlayersList")
+
+                rankedPlayersCallback(rankedPlayersList)
+            }
+            .addOnFailureListener { e ->
+                // Handle failure
+                rankedPlayersCallback(emptyList()) // Return an empty list in case of failure
+            }
+    }
+
     fun listenForPlayerCompletion(gameId: String, player: String, completionCallback: (Boolean) -> Unit) {
         val gameRef = db.collection("games").document(gameId)
         gameRef.addSnapshotListener { documentSnapshot, e ->

@@ -87,7 +87,6 @@ class KorakPoKorakMulti : Fragment() {
             }
         }
 
-        binding.provjeriButton.text = "Next game"
         binding.provjeriButton.setOnClickListener {
             handleAnswer()
             if (binding.provjeriButton.text == "Next game" ) {
@@ -109,7 +108,6 @@ class KorakPoKorakMulti : Fragment() {
                         R.id.action_korakPoKorakMulti_to_mojBrojMulti,
                         bundle
                     )
-              //  }
             }
             if(binding.provjeriButton.text == "Next round"){
                 switchTurnAndCheckGameEnd()
@@ -158,6 +156,7 @@ class KorakPoKorakMulti : Fragment() {
         odgovor = odgovor.trim()
 
         if (odgovor.equals(pitanje.odgovor, ignoreCase = true)) {
+
             binding.provjeriButton.text = "Next round"
 //            timer.cancel()
             var brojBodova = 20 - ((brojPojma - 1) * 2)

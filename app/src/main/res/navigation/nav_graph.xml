@@ -18,6 +18,9 @@
         <action
             android:id="@+id/action_profileFragment_to_friendsFragment"
             app:destination="@id/friendsFragment" />
+        <action
+            android:id="@+id/action_profileFragment_to_score_list"
+            app:destination="@id/score_list" />
 
 
     </fragment>
@@ -193,5 +196,19 @@
         <action
             android:id="@+id/action_spojnicaSingleFragmentMulti_to_asocijacijaGameMulti"
             app:destination="@id/asocijacijaGameMulti" />
+    </fragment>
+    <fragment
+        android:id="@+id/score_list"
+        android:name="com.example.igricaslagalica.view.ScoreFragment"
+        android:label="ScoreFragment" >
+
+    </fragment>
+    <fragment
+        android:id="@+id/endGameScore"
+        android:name="com.example.igricaslagalica.view.GameEndScore"
+        android:label="GameEndScore" >
+        <action
+            android:id="@+id/action_endGameScore_to_profileFragment"
+            app:destination="@id/profileFragment" />
     </fragment>
 </navigation>

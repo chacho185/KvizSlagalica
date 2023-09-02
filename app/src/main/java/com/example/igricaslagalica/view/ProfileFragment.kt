@@ -114,6 +114,10 @@ class ProfileFragment : Fragment() {
             authController.signOut()
             findNavController().navigate(R.id.action_profileFragment_to_loginFragment)
         }
+        binding.buttonRangList.setOnClickListener{
+
+            findNavController().navigate(R.id.action_profileFragment_to_score_list)
+        }
 
 
         //...

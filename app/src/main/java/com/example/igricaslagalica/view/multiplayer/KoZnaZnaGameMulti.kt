@@ -93,7 +93,6 @@ class KoZnaZnaGameMulti : Fragment() {
         val gameId = arguments?.getString("gameId")
         isMultiplayer = gameId != null
 
-        binding.finishButton.text = "Continue"
         if (gameId != null) {
             firebaseGameController.listenForGameChanges(gameId) { updatedGame ->
                 if (updatedGame != null) {

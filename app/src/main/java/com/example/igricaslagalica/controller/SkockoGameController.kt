@@ -19,8 +19,7 @@ class SkockoGameController {
 
         val updates = hashMapOf<String, Any>(
             "skockoList" to makeRandomCombination(),
-            "player1Attempts" to mutableListOf<Int>(),
-            "player2Attempts" to mutableListOf<Int>()
+            "player1Attempts" to mutableListOf<Int>()
         )
 
         gameRef.update(updates)

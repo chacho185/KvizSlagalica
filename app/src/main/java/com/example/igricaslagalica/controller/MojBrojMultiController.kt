@@ -11,23 +11,7 @@ class MojBrojMultiController {
     private fun makeRandomCombination(): List<Skocko> {
         return List(4) { Skocko.values().random() }
     }
-    fun createSkockoGame(gameId: String) {
-        val gameRef = db.collection("games").document(gameId)
 
-        val updates = hashMapOf<String, Any>(
-            "skockoList" to makeRandomCombination(),
-            "player1Attempts" to mutableListOf<Int>(),
-            "player2Attempts" to mutableListOf<Int>()
-        )
-
-        gameRef.update(updates)
-            .addOnSuccessListener {
-                println("Game document updated successfully with Skocko-related fields.")
-            }
-            .addOnFailureListener { e ->
-                println("Error updating game document: $e")
-            }
-    }
     fun switchTurn(game: Game, currentPlayerId: String, callback: (Boolean) -> Unit) {
         val otherPlayerId = if (game.player1 == currentPlayerId) game.player2 else game.player1
         if (otherPlayerId != null) {

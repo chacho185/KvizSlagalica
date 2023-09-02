@@ -160,38 +160,45 @@ class AsocijacijaGameMulti : Fragment() {
             // Omogućite interakciju prvom igraču (asocijacija1Buttons, asocijacija2Buttons, itd.)
             // Onemogućite interakciju drugom igraču
             player1Score = bodovi
-            binding.finishButton.isEnabled = true
+           // binding.finishButton.isEnabled = true
 
         } else {
             // Omogućite interakciju drugom igraču
             // Onemogućite interakciju prvom igraču
             player2Score = bodovi
-            binding.finishButton.isEnabled = true
+        //    binding.finishButton.isEnabled = true
         }
 
-//        // Spremanje rezultata prvog igrača u bazu
-//        gameController.saveResultToDatabase(currentGame.gameId, currentGame.playerId1, player1Score)
-//
-//// Ažuriranje Game objekta u bazi sa novim potezom
-//        gameController.updateGameInDatabase(currentGame.gameId, currentGame)
         binding.finishButton.visibility = View.VISIBLE
-        binding.finishButton.isEnabled = true
+      //  binding.finishButton.isEnabled = true
 
+
+        if(game.currentRound == 3 || !game.isPlayer1Done){
+            binding.finishButton.text = "Next game"
+            binding.finishButton.isEnabled = true
+            binding.finishButton.visibility = View.VISIBLE
+//            prikaziRjesenje()
+        }
 
         binding.finishButton.setOnClickListener {
             if (game.id != null) {
                 //  switchTurnAndCheckGameEnd(currentGame, gameId)
                 //here I can reinitizalize position for asocijacije[pozicija]
-                if(game.currentRound == 1 && binding.finishButton.text == "Next round" ){
+                if(binding.finishButton.text == "Next round" ){
                     switchTurnAndCheckGameEnd(game)
                 } else {
-                    associjacijaController.updateGameField(game.id!!, "currentRound", 2) { success ->
+
+                    associjacijaController.updateGameField(game.id!!, "currentRound", 1) {
+                            success ->
                         if (success) {
-                            // Continue Round 1 for Player 2
+                            associjacijaController.updateGameField(game.id!!, "isPlayer1Done", false) {
+                            }
+
                         }
                     }
                     val bundle = bundleOf("gameId" to game.id)
                     findNavController().navigate(R.id.action_asocijacijaGameMulti_to_skockoGameMulti, bundle)
+
                 }
             }
 
@@ -399,7 +406,7 @@ class AsocijacijaGameMulti : Fragment() {
         binding.finalAnswerField.text = tacanOdgovor
         binding.finalAnswerField.setTextColor(Color.WHITE)
         binding.timerTextView.text = "Vasi bodovi su $bodovi"
-        if(currentGame.currentRound == 1) {
+        if(currentGame.currentRound == 1 || currentGame.currentRound == 2) {
             binding.finishButton.text = "Next round"
         } else {
             binding.finishButton.text = "Next game"

@@ -10,4 +10,6 @@ data class Player(
     var tokens: Int = 0,
     var lastTokenTime: Timestamp = Timestamp.now(),
     var score: Int = 0
-)
+){
+    constructor(username: String, score: Int) : this(username = username, score = score, id = null)
+}

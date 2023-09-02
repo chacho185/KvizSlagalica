@@ -178,12 +178,13 @@ class SpojnicaSingleFragmentMulti : Fragment() {
             updateDataForAdapters(filteredQuestions)
             showUnansweredQuestions = true
         }
-        //next button on the end of game : CHANGE THIS TO  == 3
-        if(isGameDone || game.currentRound == 1) {
+        //next button on the end of game
+        if(isGameDone || game.currentRound == 3) {
 
             switchPlayerButton.text = "Next game"
             switchPlayerButton.isEnabled = true
-        //    currentPlayerTurn.text =  "This game is done you will be redirected in ${timer.start()} to next game"
+            currentPlayerTurn.text =  "This game is done and you need to press Next game to go to next game"
+
             questionsAdapter.isInteractionEnabled = false
             answersAdapter.isInteractionEnabled = false // Disable interaction for player two
             timer.start()

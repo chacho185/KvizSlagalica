@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.cardview.widget.CardView
+import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.example.igricaslagalica.R
@@ -100,8 +101,11 @@ class MojBrojMulti : Fragment() {
              if(binding.calculateAndFinishButton.text == "Finish") {
                 if (gameId != null) {
 //                    val bundle = bundleOf("gameId" to gameId)
-                    findNavController().navigate(R.id.action_mojBrojMulti_to_fragment_gameone)
+//                    findNavController().navigate(R.id.action_mojBrojMulti_to_fragment_gameone)
+                    val bundle = bundleOf("player1Score" to currentGame.player1Score, "player2Score" to currentGame.player2Score,
+                        "idOne" to currentGame.player1, "idTwo" to currentGame.player2 )
 
+                    findNavController().navigate(R.id.endGameScore, bundle)
                 }
             }
 
@@ -137,12 +141,14 @@ class MojBrojMulti : Fragment() {
         if(game.isPlayer1Done && game.isPlayer2Done && game.currentRound == 1){
 
             calculateScores()
-        //    endOfRound1()
+            endOfRound1()
 //            switchTurnAndCheckGameEnd()
 //            startTimer()
-     //       resetForRound2()
+            resetForRound2()
         }
-
+        if(game.currentRound == 2 ){
+            binding.calculateAndFinishButton.text = "Finish"
+        }
     }
 
     private fun generateTrazeniBroj() {
@@ -325,6 +331,7 @@ class MojBrojMulti : Fragment() {
 
 
 
+
     }
     private fun playerHasRequiredNumber(result: Double): Boolean {
         // Check if the player's result matches the target number exactly
@@ -356,6 +363,8 @@ class MojBrojMulti : Fragment() {
         binding.numbersLayout.visibility = View.VISIBLE
         targetNumber = 0
         binding.targetNumberTextView.text = "Trazeni broj"
+        binding.resultTextView.text = "Rezultat"
+        resultString.text = "Rezultat"
 
             number1TextView.text = "Broj 1"
             number2TextView.text = "Broj 2"
@@ -363,7 +372,8 @@ class MojBrojMulti : Fragment() {
             number4TextView.text = "Broj 4"
             number5TextView.text = "Broj 5"
             number6TextView.text = "Broj 6"
-        binding.resultTextView.text = "Rezultat"
+
+
 
     }
     private fun stopGame() {
@@ -371,7 +381,7 @@ class MojBrojMulti : Fragment() {
         timer.cancel()
         binding.numbersTextView.visibility = View.GONE
         binding.numbersLayout.visibility = View.GONE
-        if(currentGame.currentRound == 1 || currentGame.currentRound == 2){
+        if(currentGame.currentRound == 1) {
             binding.calculateAndFinishButton.text = "Next round"
 
         } else {
@@ -425,17 +435,20 @@ class MojBrojMulti : Fragment() {
     private fun endRound(){
         //endGame()
         val empty:MutableList<Int> = mutableListOf()
+        if(currentGame.isPlayer1Done && currentGame.isPlayer2Done){
         currentGame.currentRound++
         mojBrojController.updateGameField(gameId, "currentRound", currentGame.currentRound) { success ->
             if (success) {
 
                 mojBrojController.updateGameField(gameId, "player1Done", false){}
                 mojBrojController.updateGameField(gameId, "player2Done", false){}
-                mojBrojController.updateGameField(gameId,"offeredNumbers", empty) {}
-                mojBrojController.updateGameField(gameId,"targetNumber", 0) {}
+                mojBrojController.updateGameField(gameId,"player1Answer", empty) {}
+                mojBrojController.updateGameField(gameId,"player2Answer", 0) {}
                 daLiJeIgraPocela = false
 
             }
         }
+        }
+
     }
 }
