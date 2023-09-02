@@ -1,4 +1,4 @@
-package com.example.igricaslagalica.view
+package com.example.igricaslagalica.view.signleplayer
 
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -57,13 +57,12 @@ class MojBroj : Fragment() {
         resultString = binding.resultTextView
 
         startTimer()
-        gameId = arguments?.getString("gameId").toString()
+        gameId = arguments?.getString("gameId")
 
         binding.stopButton.setOnClickListener {
-            if(!daLiJeIgraPocela)
+            if (!daLiJeIgraPocela)
                 generateTrazeniBroj()
-            if(daLiJeIgraPocela)
-            {
+            if (daLiJeIgraPocela) {
                 generatePonudjeneBrojeve()
                 binding.stopButton.isEnabled = false
             }
@@ -73,18 +72,13 @@ class MojBroj : Fragment() {
         binding.calculateAndFinishButton.setOnClickListener {
             izracunajDobijeniIzraz()
             stopGame()
-            if(binding.calculateAndFinishButton.text == "Finish")
-                if(gameId != null) {
-//                    val bundle = bundleOf("gameId" to gameId)
-                    findNavController().navigate(R.id.action_loginFragment_to_profileFragment)
-
-                } else {
-                    findNavController().navigate(R.id.action_mojBroj_to_singlePlayer)
-                }
+            if (binding.calculateAndFinishButton.text == "Finish")
+                findNavController().navigate(R.id.action_mojBroj_to_singlePlayer)
 
             binding.calculateAndFinishButton.text = "Finish"
         }
     }
+
     private fun generateTrazeniBroj() {
         // Generiraj novi traženi broj za svaku rundu
         targetNumber = Random.nextInt(100, 1000)
@@ -92,20 +86,21 @@ class MojBroj : Fragment() {
         // Prikazi traženi broj
         binding.targetNumberTextView.text = targetNumber.toString()
     }
-    private fun generatePonudjeneBrojeve(){
-        number1TextView.text =Random.nextInt(1, 10).toString()
-        number2TextView.text =Random.nextInt(1, 10).toString()
-        number3TextView.text =Random.nextInt(1, 10).toString()
-        number4TextView.text =Random.nextInt(1, 10).toString()
-        number5TextView.text =listOf(10, 15, 20).random().toString()
-        number6TextView.text =listOf(25, 50, 75, 100).random().toString()
+
+    private fun generatePonudjeneBrojeve() {
+        number1TextView.text = Random.nextInt(1, 10).toString()
+        number2TextView.text = Random.nextInt(1, 10).toString()
+        number3TextView.text = Random.nextInt(1, 10).toString()
+        number4TextView.text = Random.nextInt(1, 10).toString()
+        number5TextView.text = listOf(10, 15, 20).random().toString()
+        number6TextView.text = listOf(25, 50, 75, 100).random().toString()
     }
+
     private fun startTimer() {
         timer = object : CountDownTimer(60000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 val secondsLeft = millisUntilFinished / 1000
-                if(secondsLeft < 55 && !daLiJeIgraPocela)
-                {
+                if (secondsLeft < 55 && !daLiJeIgraPocela) {
                     binding.stopButton.performClick()
                     binding.stopButton.performClick()
                 }
@@ -119,59 +114,59 @@ class MojBroj : Fragment() {
         }
         timer.start()
     }
-    private fun izvrsiMatematickeOperacije()
-    {
-        binding.numbersLayout.findViewById<CardView>(R.id.number1CardView).setOnClickListener{
+
+    private fun izvrsiMatematickeOperacije() {
+        binding.numbersLayout.findViewById<CardView>(R.id.number1CardView).setOnClickListener {
             matematickiIzraz += number1TextView.text
             resultString.text = matematickiIzraz
         }
-        binding.numbersLayout.findViewById<CardView>(R.id.number2CardView).setOnClickListener{
+        binding.numbersLayout.findViewById<CardView>(R.id.number2CardView).setOnClickListener {
             matematickiIzraz += number2TextView.text
             resultString.text = matematickiIzraz
         }
-        binding.numbersLayout.findViewById<CardView>(R.id.number3CardView).setOnClickListener{
+        binding.numbersLayout.findViewById<CardView>(R.id.number3CardView).setOnClickListener {
             matematickiIzraz += number3TextView.text
             resultString.text = matematickiIzraz
         }
-        binding.numbersLayout.findViewById<CardView>(R.id.number4CardView).setOnClickListener{
+        binding.numbersLayout.findViewById<CardView>(R.id.number4CardView).setOnClickListener {
             matematickiIzraz += number4TextView.text
             resultString.text = matematickiIzraz
         }
-        binding.numbersLayout.findViewById<CardView>(R.id.number5CardView).setOnClickListener{
+        binding.numbersLayout.findViewById<CardView>(R.id.number5CardView).setOnClickListener {
             matematickiIzraz += number5TextView.text
             resultString.text = matematickiIzraz
         }
-        binding.numbersLayout.findViewById<CardView>(R.id.number6CardView).setOnClickListener{
+        binding.numbersLayout.findViewById<CardView>(R.id.number6CardView).setOnClickListener {
             matematickiIzraz += number6TextView.text
             resultString.text = matematickiIzraz
         }
-        binding.numbersLayout.findViewById<CardView>(R.id.plusCardView).setOnClickListener{
+        binding.numbersLayout.findViewById<CardView>(R.id.plusCardView).setOnClickListener {
             matematickiIzraz += "+"
             resultString.text = matematickiIzraz
         }
-        binding.numbersLayout.findViewById<CardView>(R.id.minusCardView).setOnClickListener{
+        binding.numbersLayout.findViewById<CardView>(R.id.minusCardView).setOnClickListener {
             matematickiIzraz += "-"
             resultString.text = matematickiIzraz
         }
-        binding.numbersLayout.findViewById<CardView>(R.id.putaCardView).setOnClickListener{
+        binding.numbersLayout.findViewById<CardView>(R.id.putaCardView).setOnClickListener {
             matematickiIzraz += "*"
             resultString.text = matematickiIzraz
         }
-        binding.numbersLayout.findViewById<CardView>(R.id.otvorenaCardView).setOnClickListener{
+        binding.numbersLayout.findViewById<CardView>(R.id.otvorenaCardView).setOnClickListener {
             matematickiIzraz += "("
             resultString.text = matematickiIzraz
         }
-        binding.numbersLayout.findViewById<CardView>(R.id.zatvorenaCardView).setOnClickListener{
+        binding.numbersLayout.findViewById<CardView>(R.id.zatvorenaCardView).setOnClickListener {
             matematickiIzraz += ")"
             resultString.text = matematickiIzraz
         }
-        binding.numbersLayout.findViewById<CardView>(R.id.podjeljenoCardView).setOnClickListener{
+        binding.numbersLayout.findViewById<CardView>(R.id.podjeljenoCardView).setOnClickListener {
             matematickiIzraz += "/"
             resultString.text = matematickiIzraz
         }
     }
-    private fun izracunajDobijeniIzraz()
-    {
+
+    private fun izracunajDobijeniIzraz() {
         val expressionString = resultString.text.toString()
         try {
             val expression = ExpressionBuilder(expressionString).build()
@@ -181,6 +176,7 @@ class MojBroj : Fragment() {
             resultString.text = "0"
         }
     }
+
     private fun stopGame() {
         // Zaustavi trenutnu rundu
         timer.cancel()

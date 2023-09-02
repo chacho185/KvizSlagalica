@@ -15,29 +15,26 @@ class AnswersAdapter(private var answers: List<Connection>,
                      private val onAnswerSelected: (Int) -> Unit
 ) : RecyclerView.Adapter<AnswersAdapter.AnswerViewHolder>() {
 private var selectedPosition = -1
+    var isInteractionEnabled = true
     inner class AnswerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val answerText: TextView = itemView.findViewById(R.id.answerText)
+        init {
+            itemView.setOnClickListener {
+                if (isInteractionEnabled) {
+                    onAnswerSelected(adapterPosition)
+                    selectedPosition = adapterPosition
+                    notifyDataSetChanged()
+                }
+            }
+        }
         fun bind(answer: Connection, position: Int) {
             answerText.text = answer.answer
 
-            itemView.setOnClickListener {
-                onAnswerSelected(adapterPosition)
-
-                // If a different item was selected, refresh the old item (to change its color back)
-                if (selectedPosition != position && selectedPosition != -1) {
-                    notifyItemChanged(selectedPosition)
-                }
-
-                // Set the selected position to this item
-                selectedPosition = position
-
-                // Change the item's color
+            // Set background color based on the selected position
+            if (selectedPosition == position) {
                 itemView.setBackgroundColor(Color.LTGRAY)
-            }
-
-            // Reset the item's color if it's not selected
-            if (selectedPosition != position) {
-                itemView.setBackgroundColor(Color.WHITE) // replace with the original color
+            } else {
+                itemView.setBackgroundColor(Color.WHITE) // Replace with the original color
             }
 
         }

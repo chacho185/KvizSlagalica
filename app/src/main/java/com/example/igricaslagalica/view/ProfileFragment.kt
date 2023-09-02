@@ -106,10 +106,17 @@ class ProfileFragment : Fragment() {
                 onPlayOnlineButtonClicked(it.uid)
             }
         }
+        binding.buttonFriends.setOnClickListener{
+            findNavController().navigate(R.id.action_profileFragment_to_friendsFragment)
+        }
 
         binding.buttonLogout.setOnClickListener{
             authController.signOut()
             findNavController().navigate(R.id.action_profileFragment_to_loginFragment)
+        }
+        binding.buttonRangList.setOnClickListener{
+
+            findNavController().navigate(R.id.action_profileFragment_to_score_list)
         }
 
 
@@ -139,9 +146,9 @@ class ProfileFragment : Fragment() {
                             Log.d("joinGame", "Successfully joined the game")
                             Toast.makeText(context, "Joined to $it", Toast.LENGTH_LONG).show()
                             val bundle = bundleOf("gameId" to it)
-                            findNavController().navigate(R.id.action_loginFragment_to_multiPlayer_kkz, bundle)
+                            //findNavController().navigate(R.id. action_loginFragment_to_multiPlayer_kkz, bundle)
 
-//                            findNavController().navigate(R.id.action_loginFragment_to_multiPlayer_kkz, bundle)
+                            findNavController().navigate(R.id.koZnaZnaGameMulti, bundle)
                         } else {
                             Log.d("joinGame", "Failed to join the game")
                             Toast.makeText(context, "Failed to join the game", Toast.LENGTH_LONG).show()
@@ -153,13 +160,13 @@ class ProfileFragment : Fragment() {
                 Log.d("getWaitingGame", "Game is null, attempting to start a new game")
                 gameController.startGame(playerId) { success, gameId ->
                     if (success) {
-                        Log.d("startGame", "Successfully started a new game with gameId: $gameId")
+                    //    Log.d("startGame", "Successfully started a new game with gameId: $gameId")
                         // Create the game with the list of questions
 //                        gameController.createGame(playerId)
                         Toast.makeText(context, "Started $gameId", Toast.LENGTH_LONG).show()
 
                         val bundle = bundleOf("gameId" to gameId)
-                        findNavController().navigate(R.id.action_loginFragment_to_multiPlayer_kkz, bundle)
+                        findNavController().navigate(R.id.koZnaZnaGameMulti, bundle)
 
                     } else {
                         Log.d("startGame", "Failed to start a new game")

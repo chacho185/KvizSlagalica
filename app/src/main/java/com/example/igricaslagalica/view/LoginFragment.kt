@@ -72,7 +72,6 @@ class LoginFragment : Fragment(), AuthListener {
             val defaultPassword = "test123" // Default password value
 
             authController.signIn(defaultEmail, defaultPassword, this)
-
             Toast.makeText(context, "Morate unijeti email/username i password!", Toast.LENGTH_SHORT)
                 .show()
         }

@@ -1,4 +1,4 @@
-package com.example.igricaslagalica.view
+package com.example.igricaslagalica.view.signleplayer
 
 import android.content.ContentValues.TAG
 import android.graphics.Color
@@ -11,14 +11,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import androidx.core.os.bundleOf
-import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.example.igricaslagalica.R
 import com.example.igricaslagalica.SharedViewModel
 import com.example.igricaslagalica.controller.AsocijacijeGameController
 import com.example.igricaslagalica.controller.FirebaseGameController
-import com.example.igricaslagalica.controller.SpojnicaGameController
 import com.example.igricaslagalica.data.StaticData
 import com.example.igricaslagalica.databinding.FragmentAsocijacijaGameBinding
 import com.example.igricaslagalica.model.Game
@@ -183,14 +181,8 @@ class AsocijacijaGame : Fragment() {
             }
         }
         binding.finishButton.setOnClickListener {
-            if (gameId != null) {
-              //  switchTurnAndCheckGameEnd(currentGame, gameId)
-                val bundle = bundleOf("gameId" to gameId)
-                findNavController().navigate(R.id.action_singlePlayer_to_online_skockoGame, bundle)
 
-            } else {
-                findNavController().navigate(R.id.action_asocijacijaGame_to_singlePlayer)
-            }
+                findNavController().navigate(R.id.action_singlePlayer_to_online_skockoGame)
 
         }
         startGame()

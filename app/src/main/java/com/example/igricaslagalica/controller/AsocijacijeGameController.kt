@@ -1,10 +1,9 @@
 package com.example.igricaslagalica.controller
 
-import android.content.ContentValues
-import android.util.Log
+import com.example.igricaslagalica.model.AsocijacijaMultiplayer
 import com.example.igricaslagalica.model.Game
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.SetOptions
 
 class AsocijacijeGameController {
 
@@ -21,6 +20,64 @@ class AsocijacijeGameController {
             }
         }
     }
+
+    fun updateQuestionAssocijacija(game: Game, callback: (Boolean) -> Unit) {
+        val gameDocumentRef = db.collection("games").document(game.id!!)
+        val updatedQuestions = game?.asocijacijaQuestions?.toMutableList()
+        if (updatedQuestions != null && updatedQuestions.size > 0) {
+            val indexToUpdate = 0  // Specify the index you want to update
+            updatedQuestions[indexToUpdate].assignedToPlayer = game.player1
+            updatedQuestions[1].assignedToPlayer = game.player2
+
+
+            // Update the entire list back to Firestore
+            gameDocumentRef.update("asocijacijaQuestions", updatedQuestions)
+                .addOnSuccessListener {
+                    // Update successful
+                    callback(true)
+                }
+                .addOnFailureListener { e ->
+                    // Handle update failure
+                    callback(false)
+                }
+        }
+        // Get the current game from Firestore
+//        gameDocumentRef.get()
+//            .addOnSuccessListener { documentSnapshot ->
+//                if (documentSnapshot.exists()) {
+//                    val currentGame = documentSnapshot.toObject(Game::class.java)
+//
+//
+//                }
+//            }
+//            .addOnFailureListener { e ->
+//                // Handle failure to get document
+//            }
+
+    }
+
+fun generateNewQuestions(game: Game,assignedPlayer: String = "", onQuestionsFetched: (List<AsocijacijaMultiplayer>) -> Unit) {
+
+    db.collection("asocijacijaQuestions").get().addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val allQuestions = task.result?.documents?.mapNotNull { it.toObject(AsocijacijaMultiplayer::class.java) }
+                if (allQuestions != null) {
+                    val gameQuestions = allQuestions.shuffled().map {
+                        AsocijacijaMultiplayer(
+                            it.asocijacijaList,
+                            it.asocijacijaListOne,
+                            it.asocijacijaTwo,
+                            it.asocijacijaThree,
+                            it.asocijacijaKonacnoRjesenje,
+                            null, // answeredBy, leave it as null for now
+                            if (assignedPlayer.isNotEmpty()) assignedPlayer else game.currentTurn
+                        )
+                    }
+                    onQuestionsFetched(gameQuestions)
+                }
+            }
+        }
+    }
     fun updateGameField(gameId: String, field: String, value: Any, callback: (Boolean) -> Unit) {
         db.collection("games").document(gameId)
             .update(field, value)
@@ -30,6 +87,11 @@ class AsocijacijeGameController {
             .addOnFailureListener {
                 callback(false)
             }
+    }
+    fun updateInteractions(gameId: String, interactions: List<Map<String, Int>>){
+        val gameDocumentRef = db.collection("games").document(gameId)
+        gameDocumentRef.update("interactionsAsocijacija", interactions)
+
     }
     fun switchTurn(game: Game, currentPlayerId: String, callback: (Boolean) -> Unit) {
         val otherPlayerId = if (game.player1 == currentPlayerId) game.player2 else game.player1

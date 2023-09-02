@@ -1,4 +1,4 @@
-package com.example.igricaslagalica.view
+package com.example.igricaslagalica.view.signleplayer
 
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -46,12 +46,9 @@ class SkockoGame : Fragment() {
         startGame()
 
             binding.finishButton.setOnClickListener {
-                if(gameId != null){
-                    val bundle = bundleOf("gameId" to gameId)
-                    findNavController().navigate(R.id.action_singlePlayer_to_online_korakpokorak, bundle)
-                } else {
-                findNavController().navigate(R.id.action_skockoGame_to_singlePlayer)
-                }
+
+                    findNavController().navigate(R.id.action_singlePlayer_to_online_korakpokorak)
+
         }
 
     }

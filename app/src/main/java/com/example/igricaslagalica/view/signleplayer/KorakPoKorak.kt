@@ -1,4 +1,4 @@
-package com.example.igricaslagalica.view
+package com.example.igricaslagalica.view.signleplayer
 
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -53,12 +53,8 @@ class KorakPoKorak : Fragment() {
         binding.provjeriButton.setOnClickListener {
 
             if (binding.provjeriButton.text == "Finish")
-                if(gameId != null){
-                    val bundle = bundleOf("gameId" to gameId)
-                    findNavController().navigate(R.id.action_singlePlayer_to_online_mojBroj, bundle)
-                } else {
-                    findNavController().navigate(R.id.action_korakPoKorak_to_singlePlayer)
-                }
+                    findNavController().navigate(R.id.action_singlePlayer_to_online_mojBroj)
+
 
             var odgovor = binding.odgovorEditText.text.toString()
             odgovor = odgovor.trim()
