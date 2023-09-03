@@ -275,12 +275,13 @@ private fun setupSwitchPlayerButton(game: Game) {
                     }
                 }
 
-                handleGameAfterAnswer(game, gameId)
+
             }
             if(switchPlayerButton.text == "Next game"){
                 val bundle = bundleOf("gameId" to gameId)
                 findNavController().navigate(R.id.action_spojnicaSingleFragmentMulti_to_asocijacijaGameMulti, bundle)
             }
+            handleGameAfterAnswer(game, gameId)
         }
 
     }

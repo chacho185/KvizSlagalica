@@ -263,8 +263,6 @@ class KorakPoKorakMulti : Fragment() {
                 game.id?.let { gameId ->
                     korakPoKorakController.updateGameField(gameId, "korakPoKorakQuestions",  game.korakPoKorakQuestions) { success ->
                         if (success) {
-//                            val filteredQuestions = game.korakPoKorakQuestions.filter { it.assignedToPlayer == game.player1 }
-//                            pitanje = filteredQuestions[0]
                             prikaziPojam()
                         }
 
