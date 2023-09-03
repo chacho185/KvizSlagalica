@@ -207,7 +207,12 @@ class SpojnicaSingleFragmentMulti : Fragment() {
 
     private fun enableTurnForCurrentPlayer(game: Game, currentPlayerId: String) {
         switchPlayerButton.isEnabled = true
-        getCurrentPlayer(currentPlayerId, game.currentRound)
+        if(game.currentRound != 3){
+            getCurrentPlayer(currentPlayerId, game.currentRound)
+        } else {
+            currentPlayerTurn.text =  "This game is done and you need to press Next game to go to next game"
+
+        }
         questionsAdapter.isInteractionEnabled = true
         answersAdapter.isInteractionEnabled = true
        // timer.start()
@@ -273,12 +278,6 @@ private fun setupSwitchPlayerButton(game: Game) {
                 handleGameAfterAnswer(game, gameId)
             }
             if(switchPlayerButton.text == "Next game"){
-                gameController.updateGameField(gameId, "currentRound", 1) { success ->
-                    if (success) {
-                        // Continue Round 1 for Player 2
-                    }
-
-                }
                 val bundle = bundleOf("gameId" to gameId)
                 findNavController().navigate(R.id.action_spojnicaSingleFragmentMulti_to_asocijacijaGameMulti, bundle)
             }
@@ -303,7 +302,9 @@ private fun setupSwitchPlayerButton(game: Game) {
         if (currentUserId != null) {
             gameController.switchTurn(game, currentUserId) { success ->
                 if (success) {
+
                     getCurrentPlayer(game.currentTurn, game.currentRound)
+
                     // switchPlayer(game)
                     if(game.currentRound == 2 && game.currentTurn == game.player1 ){
                         val bundle = bundleOf("gameId" to gameId)

@@ -73,7 +73,6 @@ class AsocijacijaGameMulti : Fragment() {
         _binding = FragmentAsocijacijaGameBinding.inflate(inflater, container, false)
         return binding.root
     }
-    private var asocijacijeFetched: List<AsocijacijaMultiplayer> = listOf()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -82,11 +81,21 @@ class AsocijacijaGameMulti : Fragment() {
         Log.d("idd","Game id $gameId")
 
         if (gameId != null) {
+            associjacijaController.updateGameField(gameId, "currentRound", 1) { success ->
+                if (success) { }
+            }
             firebaseGameController.listenForGameChanges(gameId) { updatedGame ->
                 if (updatedGame != null && currentUserId != null) {
-                    handleUI(updatedGame)
-                    currentGame = updatedGame
-                    //   setupSwitchPlayerButton(updatedGame)
+                    if(updatedGame.asocijacijaQuestions.isNullOrEmpty()){
+                        associjacijaController.generateNewQuestions(updatedGame) { pitanja ->
+                            asocijacije = pitanja
+                        }
+                    } else {
+                        asocijacije = updatedGame.asocijacijaQuestions
+                        handleUI(updatedGame)
+                        currentGame = updatedGame
+                    }
+
                 } else {
                     // Handle failure or game not found
                     // handleGameNotFound()
@@ -94,38 +103,40 @@ class AsocijacijaGameMulti : Fragment() {
             }
 
         }
+        binding.finishButton.setOnClickListener {
+            if (currentGame.id != null) {
+                if(binding.finishButton.text == "Next round" && (currentGame.currentRound == 1 || currentGame.currentRound == 2) ){
+                    switchTurnAndCheckGameEnd(currentGame)
+                } else {
+                    associjacijaController.updateGameField(currentGame.id!!, "currentRound", 1) {
+                            success ->
+                        if (success) {
+                        }
+                    }
+                    val bundle = bundleOf("gameId" to currentGame.id)
+                    findNavController().navigate(R.id.action_asocijacijaGameMulti_to_skockoGameMulti, bundle)
 
+                }
+            }
+
+        }
 
     }
 
     private fun handleUI(game: Game){
 //        val gameId = arguments?.getString("gameId")
         gameUIHandled()
-
-
         if(!hasStartedGame) {
             currentGame.currentTurn = game.player1.toString()
             associjacijaController.updateGameField(game.id!!, "currentTurn", currentGame.currentTurn) { success ->
                 if (success) {
-                    // Generate questions for both players
-                        associjacijaController.generateNewQuestions(game, currentGame.player1!!) { newQuestions ->
-                            // Update the game with the new questions for both players
-                            currentGame.asocijacijaQuestions = newQuestions
-                            associjacijaController.updateQuestionAssocijacija(currentGame) { success ->
-                                if(success){
-                                    asocijacije = newQuestions.filter { it.assignedToPlayer == currentGame.player1 }
-                                    startGame()
-                                }
-
-                            }
-
-                        }
-
-
-                } else {
-                    // Handle update failure
                 }
             }
+           // asocijacije = asocijacije.filter { it.assignedToPlayer == game.player1 }
+           // asocijacije = listOf(asocijacije[0])
+            questionToShow = 0
+            startGame()
+          //  handlePlayerTurn(currentGame, game.player1.toString())
             hasStartedGame = true
        }
 
@@ -135,10 +146,11 @@ class AsocijacijaGameMulti : Fragment() {
         if (currentUserId != null && hasStartedGame) {
             handlePlayerTurn(currentGame, currentUserId)
         }
-        Log.w("id","current round ${currentGame.currentRound} or ++ ${game.currentRound}")
+
         if(currentGame.currentRound == 2 && !hasSecondRoundStarted) {
-          //  questionToShow = 1
-            asocijacije = currentGame.asocijacijaQuestions.filter { it.assignedToPlayer == currentGame.player2 } //listOf(currentGame.asocijacijaQuestions[1])
+            questionToShow = 1
+            Log.w("aa","sossa ${asocijacije[1]}")
+          //  asocijacije = currentGame.asocijacijaQuestions.filter { it.assignedToPlayer == currentGame.player2 } //listOf(currentGame.asocijacijaQuestions[1])
             val emptyInteractionsList: List<Map<String, Int>> = emptyList()
             currentGame.id?.let {it
                 associjacijaController.updateGameField(it,"interactionsAsocijacija", emptyInteractionsList){ success ->
@@ -160,49 +172,27 @@ class AsocijacijaGameMulti : Fragment() {
             // Omogućite interakciju prvom igraču (asocijacija1Buttons, asocijacija2Buttons, itd.)
             // Onemogućite interakciju drugom igraču
             player1Score = bodovi
-           // binding.finishButton.isEnabled = true
 
         } else {
             // Omogućite interakciju drugom igraču
             // Onemogućite interakciju prvom igraču
             player2Score = bodovi
-        //    binding.finishButton.isEnabled = true
         }
 
         binding.finishButton.visibility = View.VISIBLE
-      //  binding.finishButton.isEnabled = true
 
 
+        Log.w("tre","player isDone ${game.isPlayer1Done} ++ ${currentGame.currentRound}")
         if(game.currentRound == 3 || !game.isPlayer1Done){
+
             binding.finishButton.text = "Next game"
             binding.finishButton.isEnabled = true
             binding.finishButton.visibility = View.VISIBLE
-//            prikaziRjesenje()
+         //   prikaziOdabranaPolja()
+          //  prikaziRjesenje()
         }
 
-        binding.finishButton.setOnClickListener {
-            if (game.id != null) {
-                //  switchTurnAndCheckGameEnd(currentGame, gameId)
-                //here I can reinitizalize position for asocijacije[pozicija]
-                if(binding.finishButton.text == "Next round" ){
-                    switchTurnAndCheckGameEnd(game)
-                } else {
 
-                    associjacijaController.updateGameField(game.id!!, "currentRound", 1) {
-                            success ->
-                        if (success) {
-                            associjacijaController.updateGameField(game.id!!, "isPlayer1Done", false) {
-                            }
-
-                        }
-                    }
-                    val bundle = bundleOf("gameId" to game.id)
-                    findNavController().navigate(R.id.action_asocijacijaGameMulti_to_skockoGameMulti, bundle)
-
-                }
-            }
-
-        }
     }
 
 
@@ -224,7 +214,8 @@ class AsocijacijaGameMulti : Fragment() {
         if (isPlayer1Turn) {
             if (isOdgovorTocan) {
                 player1Score += 7 + (6 * neodgovorenihAsocijacija) - oduzmiBodova
-                currentGame.currentTurn = currentGame.player2.toString()
+             //   currentGame.currentTurn = currentGame.player2.toString()
+                player1Score += currentGame.player1Score
                 // Spremi rezultate u bazu
                 currentGame.id?.let {
                     associjacijaController.saveResultPlayer1(it, player1Score, currentGame.currentTurn)
@@ -234,7 +225,8 @@ class AsocijacijaGameMulti : Fragment() {
             if (isOdgovorTocan) {
                 Log.w(TAG,"bodovi tacni 2 $bodovi")
                 player2Score += 7 + (6 * neodgovorenihAsocijacija) - oduzmiBodova
-                currentGame.currentTurn = currentGame.player1.toString()
+             //   currentGame.currentTurn = currentGame.player1.toString()
+                player2Score += currentGame.player2Score
                 // Spremi rezultate u bazu
                 currentGame.id?.let {
                     associjacijaController.saveResultPlayer2(it, player2Score, currentGame.currentTurn)
@@ -243,7 +235,6 @@ class AsocijacijaGameMulti : Fragment() {
         }
         // Increment the round number
         currentGame.currentRound++
-
         // Update the game object in the database
         currentGame.id?.let { game ->
             associjacijaController.updateGameField(game, "currentRound", currentGame.currentRound) { success ->
@@ -252,10 +243,14 @@ class AsocijacijaGameMulti : Fragment() {
                     associjacijaController.updateGameField(game,"interactionsAsocijacija", emptyInteractionsList){ success ->
                         if( success ){
                             resetujOdabranaPolja()
-                            asocijacije = currentGame.asocijacijaQuestions.filter { it.assignedToPlayer == currentGame.player2 } //listOf(currentGame.asocijacijaQuestions[1])
+                           // asocijacije = currentGame.asocijacijaQuestions.filter { it.assignedToPlayer == currentGame.player2 } //listOf(currentGame.asocijacijaQuestions[1])
                             startGame()
 
                         binding.finishButton.isEnabled = true
+                        }
+                    }
+                    if(currentGame.currentRound == 3) {
+                        associjacijaController.updateGameField(currentGame.id!!, "player1Done", false) {
                         }
                     }
 
@@ -273,7 +268,6 @@ class AsocijacijaGameMulti : Fragment() {
             if (success) {
                 endRound()
                 handlePlayerTurn(currentGame, currentGame.currentTurn)
-
 
             } else {
                 // Handle error
@@ -317,7 +311,10 @@ class AsocijacijaGameMulti : Fragment() {
             asocijacija4Buttons[i].isClickable = false
         }
         binding.odgovorEditText.isEnabled = false
+        if(!currentGame.isPlayer1Done) {
+            binding.finishButton.isEnabled = true
 
+        }
         //     timer.cancel()
     }
 
@@ -376,12 +373,7 @@ class AsocijacijaGameMulti : Fragment() {
             // Check if it's a final solution interaction
             val isFinalSolution = interaction["isFinalSolution"] as? Int
             if (isFinalSolution == 1) {
-              //  val finalSolution = asocijacije[0].asocijacijaKonacnoRjesenje.trim()
-             //   binding.finalAnswerField.text = finalSolution
-
                 prikaziRjesenje()
-                binding.finishButton.visibility = View.VISIBLE
-                binding.finishButton.isEnabled = true
             }
         }
 
@@ -396,17 +388,19 @@ class AsocijacijaGameMulti : Fragment() {
         }
 
         binding.finalAnswerField.setTextColor(Color.TRANSPARENT)
-        binding.finishButton.visibility = View.GONE
+     //   binding.finishButton.visibility = View.GONE
+        binding.finishButton.isEnabled = false
 
     }
     private fun prikaziRjesenje() {
         timer.cancel()
+        Log.w("at", "ovo su ${asocijacije[0]} == ${asocijacije[1]} ")
         val tacanOdgovor = asocijacije[questionToShow].asocijacijaKonacnoRjesenje.trim()  //asocijacije.asocijacijaKonacnoRjesenje.trim()
         binding.odgovorEditText.visibility = View.GONE
         binding.finalAnswerField.text = tacanOdgovor
         binding.finalAnswerField.setTextColor(Color.WHITE)
         binding.timerTextView.text = "Vasi bodovi su $bodovi"
-        if(currentGame.currentRound == 1 || currentGame.currentRound == 2) {
+        if(currentGame.currentRound == 1  || currentGame.currentRound == 2 ) {
             binding.finishButton.text = "Next round"
         } else {
             binding.finishButton.text = "Next game"
@@ -427,7 +421,6 @@ class AsocijacijaGameMulti : Fragment() {
         val updatedInteractions = currentGame.interactionsAsocijacija.toMutableList()
         updatedInteractions.add(interaction)
         currentGame.interactionsAsocijacija = updatedInteractions
-//        associjacijaController.updateInteractions(currentGame.id!!, currentGame.interactionsAsocijacija)
         associjacijaController.updateGameField(currentGame.id!!,"interactionsAsocijacija", currentGame.interactionsAsocijacija){
 
         }

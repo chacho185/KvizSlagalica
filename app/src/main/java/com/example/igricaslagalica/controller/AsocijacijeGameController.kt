@@ -62,18 +62,32 @@ fun generateNewQuestions(game: Game,assignedPlayer: String = "", onQuestionsFetc
             if (task.isSuccessful) {
                 val allQuestions = task.result?.documents?.mapNotNull { it.toObject(AsocijacijaMultiplayer::class.java) }
                 if (allQuestions != null) {
-                    val gameQuestions = allQuestions.shuffled().map {
+                    val gameQuestions = allQuestions.shuffled().mapIndexed { index, question ->
+                        val assignedPlayer = if (index == 0) game.player1 else game.player2
                         AsocijacijaMultiplayer(
-                            it.asocijacijaList,
-                            it.asocijacijaListOne,
-                            it.asocijacijaTwo,
-                            it.asocijacijaThree,
-                            it.asocijacijaKonacnoRjesenje,
+                            question.asocijacijaList,
+                            question.asocijacijaListOne,
+                            question.asocijacijaTwo,
+                            question.asocijacijaThree,
+                            question.asocijacijaKonacnoRjesenje,
                             null, // answeredBy, leave it as null for now
-                            if (assignedPlayer.isNotEmpty()) assignedPlayer else game.currentTurn
+                            assignedPlayer
                         )
                     }
+
+//                    val gameQuestions = allQuestions.shuffled().map {
+//                        AsocijacijaMultiplayer(
+//                            it.asocijacijaList,
+//                            it.asocijacijaListOne,
+//                            it.asocijacijaTwo,
+//                            it.asocijacijaThree,
+//                            it.asocijacijaKonacnoRjesenje,
+//                            null, // answeredBy, leave it as null for now
+//                            if (assignedPlayer.isNotEmpty()) assignedPlayer else game.currentTurn
+//                        )
+//                    }
                     onQuestionsFetched(gameQuestions)
+                    game.id?.let { updateGameField(it,"asocijacijaQuestions", gameQuestions){} }
                 }
             }
         }
