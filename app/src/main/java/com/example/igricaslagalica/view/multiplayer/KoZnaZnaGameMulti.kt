@@ -116,7 +116,7 @@ class KoZnaZnaGameMulti : Fragment() {
                 val bundle = bundleOf("gameId" to gameId)
                 findNavController().navigate(R.id.action_koZnaZnaGameMulti_to_spojnicaSingleFragmentMulti, bundle)
         }
-        binding.finishButton.visibility = View.VISIBLE
+       
     }
 
     private fun updateUI(game: Game) {

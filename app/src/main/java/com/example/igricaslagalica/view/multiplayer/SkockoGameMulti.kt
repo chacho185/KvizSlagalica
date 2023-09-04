@@ -43,6 +43,8 @@ class SkockoGameMulti : Fragment() {
     var gameId: String = ""
     val currentUserId= FirebaseAuth.getInstance().currentUser?.uid
     private var hasStartedGame : Boolean = false
+    private var hasStartedRoundTwo : Boolean = false
+
     private var isPlayer1Round1Answered = false
     private var isPlayer2Round1Answered = false
 
@@ -117,6 +119,11 @@ class SkockoGameMulti : Fragment() {
             binding.pokusaji.visibility = View.VISIBLE
             binding.tacanOdgovor.visibility = View.GONE
         }
+        if(game.currentRound == 2 && !hasStartedRoundTwo){
+            timer.cancel()
+            startTimer()
+            hasStartedGame = true
+        }
         if(game.currentRound == 3 ){
             endGame()
         }
@@ -139,6 +146,7 @@ class SkockoGameMulti : Fragment() {
         if (game.currentTurn == currentPlayerId) {
             // It's the current player's turn. Enable the UI.
             enableTurnForCurrentPlayer(game, currentPlayerId)
+
 
         } else {
             // It's not the current player's turn. Disable the UI.
@@ -167,9 +175,7 @@ class SkockoGameMulti : Fragment() {
         binding.opcije.visibility = View.GONE // Hide the options for selecting Skocko values
     }
 
-
     private fun startGame(gameId: String) {
-       // makeRandomCombination()
         skockoGameController.createSkockoGame(gameId)
         startTimer()
         pokusaj()
@@ -313,7 +319,7 @@ class SkockoGameMulti : Fragment() {
         binding.pokusaji.visibility = View.GONE
         binding.tacanOdgovor.visibility = View.VISIBLE
         binding.opcije.visibility = View.GONE
-       handleCurrentRound()
+        handleCurrentRound()
     }
     private fun handleCurrentRound(){
         currentGame.currentRound++
@@ -325,15 +331,7 @@ class SkockoGameMulti : Fragment() {
         }
     }
     private fun endRound(){
-        // here you can check flag for round 1 is answered properly
-     //   if(currentGame.currentRound == )
-//
-//        skockoGameController.updateGameField(gameId, "currentRound", currentGame.currentRound) { success ->
-//            if (success) {
-//                // Start a new round
-//              //  startNewRound()
-//            }
-//        }
+
         currentGame.player1Attempts = mutableListOf()
         skockoGameController.updateGameField(gameId, "player1Attempts", currentGame.player1Attempts) { success ->
             if (success) {
@@ -345,13 +343,7 @@ class SkockoGameMulti : Fragment() {
 
             }
         }
-//        currentGame.player1Attempts = mutableListOf()
-//        skockoGameController.updateGameField(gameId, "player1Attempts", currentGame.player1Attempts) { success ->
-//            if (success) {
-//                // Start a new round
-//                startNewRound()
-//            }
-//        }
+
     }
 //    private fun endRound() {
 //        if (currentGame.currentRound == 1) {
@@ -380,7 +372,7 @@ class SkockoGameMulti : Fragment() {
 
     private fun startNewRound() {
         skockoGameController.createSkockoGame(gameId) // Start a new game (or round) by resetting the game data
-        startTimer()
+     //   startTimer()
         pokusaj()
     }
     private fun vratiImageResourceZaVrijednost(s: Skocko): Int {

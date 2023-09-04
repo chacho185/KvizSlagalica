@@ -190,6 +190,7 @@ class SpojnicaSingleFragmentMulti : Fragment() {
             timer.start()
         }
     }
+
     private fun updateDataForAdapters(filteredQuestions: List<Connection>) {
         questionsAdapter.updateData(filteredQuestions)
         answersAdapter.updateData(filteredQuestions)
@@ -207,7 +208,12 @@ class SpojnicaSingleFragmentMulti : Fragment() {
 
     private fun enableTurnForCurrentPlayer(game: Game, currentPlayerId: String) {
         switchPlayerButton.isEnabled = true
-        getCurrentPlayer(currentPlayerId, game.currentRound)
+        if(game.currentRound != 3){
+            getCurrentPlayer(currentPlayerId, game.currentRound)
+        } else {
+            currentPlayerTurn.text =  "This game is done and you need to press Next game to go to next game"
+
+        }
         questionsAdapter.isInteractionEnabled = true
         answersAdapter.isInteractionEnabled = true
        // timer.start()
@@ -270,18 +276,23 @@ private fun setupSwitchPlayerButton(game: Game) {
                     }
                 }
 
-                handleGameAfterAnswer(game, gameId)
+
             }
             if(switchPlayerButton.text == "Next game"){
-                gameController.updateGameField(gameId, "currentRound", 1) { success ->
-                    if (success) {
-                        // Continue Round 1 for Player 2
-                    }
+                game.player1?.let { it1 ->
+                    gameController.updateGameField(gameId, "currentTurn",
+                        it1
+                    ) { suc ->
+                        if(suc ){
+                            val bundle = bundleOf("gameId" to gameId)
+                            findNavController().navigate(R.id.action_spojnicaSingleFragmentMulti_to_asocijacijaGameMulti, bundle)
 
+                        }
+
+                    }
                 }
-                val bundle = bundleOf("gameId" to gameId)
-                findNavController().navigate(R.id.action_spojnicaSingleFragmentMulti_to_asocijacijaGameMulti, bundle)
-            }
+                         }
+            handleGameAfterAnswer(game, gameId)
         }
 
     }
@@ -304,19 +315,6 @@ private fun setupSwitchPlayerButton(game: Game) {
             gameController.switchTurn(game, currentUserId) { success ->
                 if (success) {
                     getCurrentPlayer(game.currentTurn, game.currentRound)
-                    // switchPlayer(game)
-                    if(game.currentRound == 2 && game.currentTurn == game.player1 ){
-                        val bundle = bundleOf("gameId" to gameId)
-                        // findNavController().navigate(R.id.action_loginFragment_to_multiPlayerAsocijacije, bundle)
-
-                    }
-                    if(game.currentRound == 1 && game.currentTurn != game.player1 ){
-                        val bundle = bundleOf("gameId" to gameId)
-                        //findNavController().navigate(R.id.action_loginFragment_to_multiPlayerAsocijacije, bundle)
-
-                    }
-                } else {
-                    // Handle error
                 }
             }
         }
@@ -384,11 +382,9 @@ private fun setupSwitchPlayerButton(game: Game) {
                 gameController.getGame(gameId) { game ->
                     if (game != null) {
                         val connection = game.questionInfo[selectedQuestionIndex!!]
-                        Log.d("trest", "Connection abi $connection")
                             gameController.answerQuestion(game, game.currentTurn, connection, selectedQuestionIndex!!, selectedAnswerIndex!!  ) { success ->
                                 if (success) {
                                     // Update the UI to reflect the new game state
-
                                 } else {
                                     // Handle failure
                                 }

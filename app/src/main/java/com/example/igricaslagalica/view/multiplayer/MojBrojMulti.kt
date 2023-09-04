@@ -1,5 +1,10 @@
 package com.example.igricaslagalica.view.multiplayer
 
+import android.content.Context
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.util.Log
@@ -8,7 +13,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.cardview.widget.CardView
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -22,6 +29,8 @@ import com.example.igricaslagalica.model.Game
 import com.google.firebase.auth.FirebaseAuth
 import kotlin.random.Random
 import net.objecthunter.exp4j.ExpressionBuilder
+import java.lang.Math.sqrt
+import java.util.Objects
 
 
 class MojBrojMulti : Fragment() {
@@ -50,6 +59,10 @@ class MojBrojMulti : Fragment() {
     var offeredNumbers: MutableList<Int> = mutableListOf()
     private var hasStartedGame: Boolean = false
 
+    private var sensorManager: SensorManager? = null
+    private var acceleration = 0f
+    private var currentAcceleration = 0f
+    private var lastAcceleration = 0f
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Initialize the game controller
@@ -63,12 +76,21 @@ class MojBrojMulti : Fragment() {
         _binding = FragmentMojBrojBinding.inflate(inflater, container, false)
         return binding.root
     }
-    private var switchTurnAndCheckGameEndRequested = false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         gameUI()
         gameId = arguments?.getString("gameId").toString()
+        // Getting the Sensor Manager instance
+        sensorManager = requireContext().getSystemService(Context.SENSOR_SERVICE) as SensorManager
+
+        Objects.requireNonNull(sensorManager)!!
+            .registerListener(sensorListener, sensorManager!!
+                .getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL)
+
+        acceleration = 10f
+        currentAcceleration = SensorManager.GRAVITY_EARTH
+        lastAcceleration = SensorManager.GRAVITY_EARTH
 
 
         if (gameId != null) {
@@ -115,7 +137,6 @@ class MojBrojMulti : Fragment() {
     private  fun handleUI(game: Game){
         if(!hasStartedGame){
             hasStartedGame = true
-          //  generateNumberAfterFiveSeconds()
         }
         if(currentUserId != null){
             handlePlayerTurn(game,currentUserId)
@@ -141,10 +162,9 @@ class MojBrojMulti : Fragment() {
         if(game.isPlayer1Done && game.isPlayer2Done && game.currentRound == 1){
 
             calculateScores()
+            stopGame()
             endOfRound1()
-//            switchTurnAndCheckGameEnd()
-//            startTimer()
-            resetForRound2()
+
         }
         if(game.currentRound == 2 ){
             binding.calculateAndFinishButton.text = "Finish"
@@ -213,6 +233,7 @@ class MojBrojMulti : Fragment() {
             override fun onFinish() {
                 switchTurnAndCheckGameEnd()
                 startTimer()
+                resetForRound2()
 
             }
         }
@@ -329,9 +350,6 @@ class MojBrojMulti : Fragment() {
             mojBrojController.saveResultPlayer2(gameId, opponentScore)
         }
 
-
-
-
     }
     private fun playerHasRequiredNumber(result: Double): Boolean {
         // Check if the player's result matches the target number exactly
@@ -365,7 +383,7 @@ class MojBrojMulti : Fragment() {
         binding.targetNumberTextView.text = "Trazeni broj"
         binding.resultTextView.text = "Rezultat"
         resultString.text = "Rezultat"
-
+        matematickiIzraz = ""
             number1TextView.text = "Broj 1"
             number2TextView.text = "Broj 2"
             number3TextView.text = "Broj 3"
@@ -373,11 +391,9 @@ class MojBrojMulti : Fragment() {
             number5TextView.text = "Broj 5"
             number6TextView.text = "Broj 6"
 
-
-
     }
     private fun stopGame() {
-        // Zaustavi trenutnu rundu
+        acceleration = 0f
         timer.cancel()
         binding.numbersTextView.visibility = View.GONE
         binding.numbersLayout.visibility = View.GONE
@@ -442,13 +458,52 @@ class MojBrojMulti : Fragment() {
 
                 mojBrojController.updateGameField(gameId, "player1Done", false){}
                 mojBrojController.updateGameField(gameId, "player2Done", false){}
-                mojBrojController.updateGameField(gameId,"player1Answer", empty) {}
-                mojBrojController.updateGameField(gameId,"player2Answer", 0) {}
+                mojBrojController.updateGameField(gameId,"player1AnswerBroj", 0.0) {}
+                mojBrojController.updateGameField(gameId,"player2AnswerBroj", 0.0) {}
                 daLiJeIgraPocela = false
 
             }
         }
         }
 
+    }
+    private val sensorListener: SensorEventListener = object : SensorEventListener {
+        override fun onSensorChanged(event: SensorEvent) {
+
+            // Fetching x,y,z values
+            val x = event.values[0]
+            val y = event.values[1]
+            val z = event.values[2]
+            lastAcceleration = currentAcceleration
+
+            // Getting current accelerations
+            // with the help of fetched x,y,z values
+            currentAcceleration = sqrt((x * x + y * y + z * z).toDouble()).toFloat()
+            val delta: Float = currentAcceleration - lastAcceleration
+            acceleration = acceleration * 0.9f + delta
+
+            // Display a Toast message if
+            // acceleration value is over 12
+            if (acceleration > 12) {
+                binding.stopButton.performClick()
+                showShakeToast(requireContext())
+            }
+        }
+        override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {}
+    }
+
+    override fun onResume() {
+        sensorManager?.registerListener(sensorListener, sensorManager!!.getDefaultSensor(
+            Sensor .TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL
+        )
+        super.onResume()
+    }
+
+    override fun onPause() {
+        sensorManager!!.unregisterListener(sensorListener)
+        super.onPause()
+    }
+    fun showShakeToast(context: Context) {
+        Toast.makeText(context, "You are using shake to get numbers", Toast.LENGTH_SHORT).show()
     }
 }
