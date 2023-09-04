@@ -231,7 +231,7 @@ class AsocijacijaGame : Fragment() {
                 currentGame.currentTurn = currentGame.player2.toString()
                 // Spremi rezultate u bazu
                 currentGame.id?.let {
-                    associjacijaController.saveResultPlayer1(it, player1Score, currentGame.currentTurn)
+                    associjacijaController.saveResultPlayer1(it, player1Score)
                 }
             }
         } else {
@@ -241,7 +241,7 @@ class AsocijacijaGame : Fragment() {
                 currentGame.currentTurn = currentGame.player1.toString()
                 // Spremi rezultate u bazu
                 currentGame.id?.let {
-                    associjacijaController.saveResultPlayer2(it, player1Score, currentGame.currentTurn)
+                    associjacijaController.saveResultPlayer2(it, player1Score)
                 }
             }
         }

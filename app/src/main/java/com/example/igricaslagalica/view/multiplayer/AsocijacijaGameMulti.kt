@@ -128,7 +128,7 @@ class AsocijacijaGameMulti : Fragment() {
         gameUIHandled()
         if(!hasStartedGame) {
             currentGame.currentTurn = game.player1.toString()
-            associjacijaController.updateGameField(game.id!!, "currentTurn", currentGame.currentTurn) { success ->
+            associjacijaController.updateGameField(game.id!!, "currentTurn", game.player1.toString()) { success ->
                 if (success) {
                 }
             }
@@ -149,7 +149,7 @@ class AsocijacijaGameMulti : Fragment() {
 
         if(currentGame.currentRound == 2 && !hasSecondRoundStarted) {
             questionToShow = 1
-            Log.w("aa","sossa ${asocijacije[1]}")
+            Log.w("aa","sossa ${asocijacije[questionToShow]}")
           //  asocijacije = currentGame.asocijacijaQuestions.filter { it.assignedToPlayer == currentGame.player2 } //listOf(currentGame.asocijacijaQuestions[1])
             val emptyInteractionsList: List<Map<String, Int>> = emptyList()
             currentGame.id?.let {it
@@ -218,7 +218,7 @@ class AsocijacijaGameMulti : Fragment() {
                 player1Score += currentGame.player1Score
                 // Spremi rezultate u bazu
                 currentGame.id?.let {
-                    associjacijaController.saveResultPlayer1(it, player1Score, currentGame.currentTurn)
+                    associjacijaController.saveResultPlayer1(it, player1Score)
                 }
             }
         } else {
@@ -229,7 +229,7 @@ class AsocijacijaGameMulti : Fragment() {
                 player2Score += currentGame.player2Score
                 // Spremi rezultate u bazu
                 currentGame.id?.let {
-                    associjacijaController.saveResultPlayer2(it, player2Score, currentGame.currentTurn)
+                    associjacijaController.saveResultPlayer2(it, player2Score)
                 }
             }
         }

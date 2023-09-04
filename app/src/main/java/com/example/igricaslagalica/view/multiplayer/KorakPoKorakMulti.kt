@@ -41,18 +41,6 @@ class KorakPoKorakMulti : Fragment() {
     val currentUserId= FirebaseAuth.getInstance().currentUser?.uid
     private var hasStartedGame : Boolean = false
     private var hasSecondRoundStarted: Boolean = false
-    private val randomNum = Random()
-
-    private var previousRandomIndex = -1 // Initialize with a value that's not valid
-    private fun generateRandomIndex(listSize: Int): Int {
-        var randomIndex: Int
-        do {
-            randomIndex = randomNum.nextInt(listSize)
-        } while (randomIndex == previousRandomIndex)
-
-        previousRandomIndex = randomIndex
-        return randomIndex
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -138,6 +126,7 @@ class KorakPoKorakMulti : Fragment() {
             brojPojma = 0
         }
         if(game.currentRound == 2 && !hasSecondRoundStarted) {
+            binding.provjeriButton.text = "Provjeri"
             resetujPojam()
             pitanje = game.korakPoKorakQuestions[1]
             prikaziPojam()
@@ -198,19 +187,6 @@ class KorakPoKorakMulti : Fragment() {
         } else {
             // It's not the current player's turn. Disable the UI.
             disableTurnForCurrentPlayer()
-//            val opponentAnswer = game.opponentAnswer
-//            if (!opponentAnswer.isNullOrEmpty()) {
-//                if(opponentAnswer == pitanje.odgovor){
-//                    binding.odgovorEditText.visibility = View.GONE
-//                    binding.tacanOdgovorCardView.visibility = View.VISIBLE
-//
-//                } else
-//                // Display the opponent's answer on the screen
-//                binding.odgovorEditText.setText(opponentAnswer)
-//                binding.odgovorEditText.visibility = View.VISIBLE
-//                binding.odgovorEditText.isClickable = false
-//                binding.odgovorEditText.isEnabled = false
-//            }
         }
     }
 
@@ -331,6 +307,7 @@ class KorakPoKorakMulti : Fragment() {
         currentGame.currentRound++
         korakPoKorakController.updateGameField(gameId, "currentRound", currentGame.currentRound) { success ->
             if (success) {
+
             }
         }
     }
